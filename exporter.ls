@@ -131,7 +131,7 @@ playlists.reduce do
 	# note: koffsyrup's fork has better IE support for text files,
 	# but as we try to export a zip, it doesn't really matter yet
 	# maybe one day, if we'll ever implement <IE10 support
-	<-! getScript \FileSaver, \saveAs, 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js'
+	<-! getScript \FileSaver, \saveAs, 'https://cdn.rawgit.com/eligrey/FileSaver.js/master/FileSaver.min.js'
 
 	# save as ZIP
 	date = /[^T]+/.exec(new Date().toISOString!).0

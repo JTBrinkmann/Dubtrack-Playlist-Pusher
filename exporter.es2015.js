@@ -118,7 +118,7 @@ suspend(function*(defer){
   $icon.remove();
   $css.remove();
   console.log("done fetching data!");
-  (yield getScript('FileSaver', 'saveAs', 'https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2014-11-29/FileSaver.min.js', defer));
+  (yield getScript('FileSaver', 'saveAs', 'https://cdn.rawgit.com/eligrey/FileSaver.js/master/FileSaver.min.js', defer));
   date = /[^T]+/.exec(new Date().toISOString())[0];
   saveAs(zip.generate({
     type: 'blob'
