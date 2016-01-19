@@ -17,6 +17,8 @@ Give it any name (e.g. "Dubtrack Playlist Pusher"). Then go to Dubtrack (make su
 
 Then go to Dubtrack.fm, be logged in and click the bookmark. Go to the playlist manager (it should auto-open) and click the "Import/Export playlists" button in the bottom-left corner.
 
+![screenshot of the import/export button](https://i.imgur.com/TKHHJoO.png)
+
 **NOTE:** Freshly imported playlists might not show up in the playlist-list, or show up with with a wrong number of songs. Refreshing the page fixes this (sorry).
 
 
