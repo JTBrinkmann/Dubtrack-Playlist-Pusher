@@ -1,0 +1,28 @@
+{
+  "name": "Dubtrack-Playlist-Pusher",
+  "version": "2.0.0",
+  "description": "Adds simple and intuitive playlist importing&exporting capabilities to Dubtrack",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "livescript-loader": "^0.1.5"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JTBrinkmann/dubtrack-playlist-exporter.git"
+  },
+  "keywords": [
+    "dubtrack",
+    "exporter",
+    "importer"
+  ],
+  "author": "JTBrinkmann",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/JTBrinkmann/dubtrack-playlist-exporter/issues"
+  },
+  "homepage": "https://github.com/JTBrinkmann/dubtrack-playlist-exporter#readme"
+}

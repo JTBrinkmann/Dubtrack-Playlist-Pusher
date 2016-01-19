@@ -1,5 +1,9 @@
-# dubtrack-playlist-exporter
-Exports Dubtrack playlists to a plug.dj playlist JSON format; useful for transferring playlists to another account.
+Dubtrack Playlist Pusher
+========================
+Adds simple and intuitive playlist **importing** & **exporting** capabilities to Dubtrack; useful for transferring playlists to another account.
+
+![Why can't we just take our Dubtrack playlists, and push them somewhere else?](http://i.imgur.com/mygfvYj.jpg)
+
 
 Usage
 -----
@@ -8,17 +12,29 @@ Create a bookmarklet with the following URL:
 javascript:$.getScript("https://rawgit.com/JTBrinkmann/dubtrack-playlist-exporter/master/exporter.js");void(8)
 ```
 
-Give it any name (e.g. "dubtrack-playlist-exporter"). Then go to Dubtrack (make sure you're logged in) and click the bookmarklet.
-If you have problems, detailed instructions on how to add bookmarklets here http://www.howtogeek.com/189358/beginner-geek-how-to-use-bookmarklets-on-any-device/
+Give it any name (e.g. "Dubtrack Playlist Pusher"). Then go to Dubtrack (make sure you're logged in) and click the bookmarklet.
+[more detailed instructions](http://www.howtogeek.com/189358/beginner-geek-how-to-use-bookmarklets-on-any-device/)
+
+Then go to Dubtrack.fm, be logged in and click the bookmark. Go to the playlist manager (it should auto-open) and click the "Import/Export playlists" button in the bottom-left corner.
+
+**NOTE:** Freshly imported playlists might not show up in the playlist-list, or show up with with a wrong number of songs. Refreshing the page fixes this (sorry).
+
 
 Compatibility
 -------------
-Exporting playlists works on all browsers that can run Dubtrack, however saving the playlists in a ZIP might not. Currently, it's been tested to work on **Google Chrome**, **Firefox** and **Internet Explorer 10**.
+**(PLEASE READ, SAFARI USERS)**
 
-Apparently it is **not** working on **Internet Explorer 9** and **Safari**. If it doesn't work for you, you can simply try again on another browser (possibly even on another device). The exporter has not yet been tested with mobile browsers.
+Tested to work on **Google Chrome**, **Firefox** and **Internet Explorer 10** and up.
+
+Apparently it is **not** working on **Internet Explorer 9** (and below) and **Safari**. This is because these browsers don't support downloading files that were generated on-the-fly (which is what this exporter does). If it doesn't work for you, you can simply try again on another browser (possibly even on another device). The exporter has not yet been tested with mobile browsers.
+
 
 Importing
 ---------
-This exporter has been made to be completly compatible with existing Dubtrack playlist importers like https://dubtrack-playlist.appspot.com/
+You can use this tool to import playlists that were exported with this tool, and playlists exported from plug.dj. It also works across accounts!
+In addition, playlists exported with this tool are completly compatible with other Dubtrack playlist importers like [dubtrack-playlist.appspot.com](https://dubtrack-playlist.appspot.com/)
 
-To transfer/copy playlists to another account, use this exporter to download your playlists, then use the [playlist importer](https://dubtrack-playlist.appspot.com/) to import any playlist individually to the other account. Voilà!
+
+Transferring Playlists
+----------------------
+Seriously? Just export them from one account, copy the files over (if necessary) and import them into the other account.

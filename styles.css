@@ -1,0 +1,111 @@
+.jtb-spin {
+    font-size: 15px;
+    font-family: "Times New Roman";
+    float: right;
+    animation: jtb-spin 2s infinite linear;
+}
+@keyframes jtb-spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(359deg);
+    }
+}
+.jtb-importing .playlist-list .playlist-items-count::after {
+    content: " \e90e";
+    color: #878c8e;
+    font-family: icomoon;
+}
+.jtb-importing .jtb-playlist-loaded .playlist-items-count::after {
+    content: " ✔";
+}
+.jtb-importing .jtb-playlist-loaded:hover .playlist-items-count::after,
+.jtb-export-btn:hover, .jtb-import-btn:hover {
+    color: #0ff;
+}
+
+.jtb-headline {
+    margin-bottom: 0 !important;
+    margin-top: 20px !important;
+}
+
+.jtb-btn {
+    background: transparent;
+    border: 1px solid white;
+    border-radius: 5px;
+    margin-left: 10px;
+    padding: 0px 10px;
+    cursor: pointer;
+}
+.jtb-export-btn {
+    margin: 5px;
+    padding: 5px 20px;
+}
+
+.jtb-import-btn {
+    font-size: 20px;
+    font-weight: bold;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+}
+
+.jtb-note {
+    color: #aaa;
+}
+.jtb-dropping #import-playlist-container {
+    border: 5px dashed cyan;
+}
+
+.jtb-files {
+    background: rgba(0,0,0, 0.2);
+    border: 1px solid rgba(0,0,0, 0.5);
+    padding: 5px;
+    text-align: left;
+    word-break: break-all;
+    max-height: 40vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    margin: 0 -40px;
+}
+
+.jtb-filename {
+    font-weight: bold;
+    word-break: break-all;
+    cursor: pointer;
+}
+
+.jtb-files > .jtb-file {
+    margin-bottom: 10px;
+}
+.jtb-file > .jtb-file {
+    margin-left: 10px;
+    border-left: 1px solid gray;
+    padding-left: 10px;
+}
+
+.jtb-type {
+    margin-left: 5px;
+    color: gray;
+    word-break: break-word;
+}
+
+.jtb-file-actions {
+    padding-left: 20px;
+}
+
+.jtb-error {
+    color: #F77;
+}
+.jtb-playlist-select {
+    color: black;
+}
+.jtb-file-imported {
+    color: limegreen;
+}
+.jtb-file-imported::before {
+    content: "✔ ";
+}
