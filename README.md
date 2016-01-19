@@ -9,7 +9,7 @@ Usage
 -----
 Create a bookmarklet with the following URL:
 ```js
-javascript:$.getScript("https://rawgit.com/JTBrinkmann/dubtrack-playlist-exporter/master/exporter.js");void(8)
+javascript:$.getScript("https://rawgit.com/JTBrinkmann/Dubtrack-Playlist-Pusher/master/index.js");void(8)
 ```
 
 Give it any name (e.g. "Dubtrack Playlist Pusher"). Then go to Dubtrack (make sure you're logged in) and click the bookmarklet.
