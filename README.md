@@ -2,7 +2,7 @@ Dubtrack Playlist Pusher
 ========================
 Adds simple and intuitive playlist **importing** & **exporting** capabilities to Dubtrack; useful for transferring playlists to another account.
 
-![Why can't we just take our Dubtrack playlists, and push them somewhere else?](http://i.imgur.com/mygfvYj.jpg)
+![Why can't we just take our Dubtrack playlists, and push them somewhere else?](http://i.imgur.com/oxFwWnN.jpg)
 
 
 Usage
