@@ -146,12 +146,21 @@
 	ref2$.avgPageFetch = 200;
 	ref2$.avgPageFetchSamples = 2;
 	ref2$.playlistLoadedResetTimeouts = {};
+	ref2$.working = false;
 	ref2$.playlists = {};
 	ref2$.isImporting = false;
 	ref2$.browserIsSafari = browserIsSafari;
 	ref2$.browserSupportsZip = window.Blob && !browserIsSafari;
 	ref2$.browserSupportsDragnDrop = 'draggable' in document.body;
 	ref2$.$loadingIcon = $("<i class='jtb-spin'>C</i>");
+	ref2$.setWorking = function(val){
+	  var ref$;
+	  val = !!val;
+	  exporter.working = val;
+	  if ((ref$ = exporter.$browser) != null) {
+	    ref$.toggleClass('jtb-working', val);
+	  }
+	};
 	ref2$.fetchPlaylistsList = function(callback){
 	  var pls, i, playlistsArr, res$;
 	  if (exporter._playlistsArr) {
@@ -348,7 +357,6 @@
 	      }
 	      updateETA = function(){
 	        clearTimeout(etaTimeout);
-	        console.log("[eta]", remainingPages, exporter.avgPageFetch, "=>", remainingPages * exporter.avgPageFetch / 1000 + "s");
 	        etaCallback(void 8, Math.round(remainingPages * exporter.avgPageFetch / 1000));
 	        etaTimeout = setTimeout(updateETA, 1000);
 	      };
@@ -709,14 +717,17 @@
 	  }
 	}).on('click', '.jtb-import-pl-btn', function(){
 	  var $file, $sel, plID, file, songs, name, $input, nameInput;
+	  if (exporter.working) {
+	    return;
+	  }
 	  $file = $(this).closest('.jtb-file');
 	  $sel = $file.find('.jtb-playlist-select');
 	  plID = $sel.val();
 	  file = $file.data('file');
 	  songs = file.parsed.data;
 	  if (plID === 'new-suggested') {
-	    $file.find('.jtb-file-actions').slideUp().before(exporter.$loadingIcon);
 	    name = file.name.replace(/\.json(?:\.txt)?$|\.txt$/, '');
+	    startWorking();
 	    exporter.createPlaylist(name, songs, callback);
 	  } else if (plID === 'new') {
 	    $input = $file.find('.jtb-name-input');
@@ -729,15 +740,20 @@
 	      alert("please enter a playlist name");
 	    } else {
 	      console.log("create new playlist");
-	      $file.find('.jtb-file-actions').slideUp().before(exporter.$loadingIcon);
+	      startWorking();
 	      exporter.createPlaylist(nameInput, songs, callback);
 	    }
 	  } else {
 	    console.log("import to playlist " + plID);
-	    $file.find('.jtb-file-actions').slideUp().before(exporter.$loadingIcon);
+	    startWorking();
 	    exporter.importSongs(plID, songs, callback);
 	  }
+	  function startWorking(){
+	    $file.find('.jtb-file-actions').slideUp().before(exporter.$loadingIcon);
+	    exporter.setWorking(true);
+	  }
 	  function callback(){
+	    exporter.setWorking(false);
 	    exporter.$loadingIcon.remove();
 	    $file.addClass('jtb-file-imported');
 	  }
@@ -760,8 +776,8 @@
 	$filelist = __webpack_require__(4).$el;
 	requestAnimationFrame(function(){
 	  var $browser, $diag, $fileInput, isFileSelecting, ref$, dragTarget;
-	  $browser = $('#browser');
-	  $diag = $('#import-playlist-container');
+	  exporter.$browser = $browser = $('#browser');
+	  exporter.$diag = $diag = $('#import-playlist-container');
 	  $(".sidebar .import-playlist").contents()[1].textContent = " Import/Export playlists";
 	  $filelist.hide().appendTo($diag);
 	  exporter.$importHint = $("<div class=jtb-note style='display:none'>note: Freshly imported playlists might not show up in the playlist-list,\ or show up with with a wrong number of songs.\ Refreshing the page fixes this (sorry)</div>").appendTo($diag);
@@ -786,9 +802,14 @@
 	  $("<h3 class='jtb-headline'>Export Playlists</h3>").appendTo($diag);
 	  $("<button class='jtb-export-btn jtb-btn'>Download All</button>").appendTo($diag).on('click', function(){
 	    var this$ = this;
+	    if (exporter.working) {
+	      return;
+	    }
 	    this.textContent = "Downloading…";
 	    clearTimeout(this.dataset.timeout);
+	    exporter.setWorking(true);
 	    exporter.downloadZip(function(err, playlists){
+	      exporter.setWorking(false);
 	      if (err) {
 	        console.error(err);
 	        $("<div class=jtb-error>").text(err.message).insertAfter(this$);
@@ -844,7 +865,12 @@
 	    console.log("[viewDetails]", exporter.isImporting, this.model.get('_id'));
 	    if (exporter.isImporting) {
 	      plID = this.model.get('_id');
-	      exporter.downloadPlaylist(plID);
+	      if (!exporter.working) {
+	        exporter.setWorking(true);
+	        exporter.downloadPlaylist(plID, function(){
+	          exporter.setWorking(false);
+	        });
+	      }
 	    } else {
 	      this.viewDetails_.apply(this, arguments);
 	    }

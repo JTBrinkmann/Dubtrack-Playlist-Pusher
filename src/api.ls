@@ -25,6 +25,7 @@ export
     avgPageFetch: 200ms
     avgPageFetchSamples: 2
     playlistLoadedResetTimeouts: {}
+    working: false
 
     # data
     playlists: {}
@@ -38,6 +39,9 @@ export
     # the C in this font looks like a cheap circle-arrow icon ^_^
     $loadingIcon: $ "<i class='jtb-spin'>C</i>"
 
+    setWorking: (!!val) !->
+        exporter.working = val
+        exporter.$browser?.toggleClass \jtb-working, val
 
 
 
@@ -246,7 +250,6 @@ export
             var etaTimeout
             updateETA = !->
                 clearTimeout etaTimeout
-                console.log "[eta]", remainingPages, exporter.avgPageFetch, "=>", "#{remainingPages*exporter.avgPageFetch/1000ms_to_s}s"
                 etaCallback(,Math.round remainingPages*exporter.avgPageFetch/1000ms_to_s)
                 etaTimeout := setTimeout updateETA, 1_000ms
 

@@ -10,6 +10,8 @@ export $el = do
                 ...
 
         .on \click, \.jtb-import-pl-btn, !->
+            return if exporter.working
+
             $file =  $ this .closest \.jtb-file
             $sel = $file .find \.jtb-playlist-select
             plID = $sel.val!
@@ -17,10 +19,8 @@ export $el = do
             songs = file.parsed.data
 
             if plID == \new-suggested
-                $file .find \.jtb-file-actions
-                    .slideUp!
-                    .before exporter.$loadingIcon
                 name = file.name .replace /\.json(?:\.txt)?$|\.txt$/, ''
+                startWorking!
                 exporter.createPlaylist do
                     name
                     songs
@@ -44,9 +44,7 @@ export $el = do
                 else
                     # create new playlist
                     console.log "create new playlist"
-                    $file .find \.jtb-file-actions
-                        .slideUp!
-                        .before exporter.$loadingIcon
+                    startWorking!
                     exporter.createPlaylist do
                         nameInput
                         songs
@@ -54,15 +52,19 @@ export $el = do
             else
                 # import songs into existing playlist
                 console.log "import to playlist #plID"
-                $file .find \.jtb-file-actions
-                    .slideUp!
-                    .before exporter.$loadingIcon
+                startWorking!
                 exporter.importSongs do
                     plID
                     songs
                     callback
 
+            !function startWorking
+                $file .find \.jtb-file-actions
+                    .slideUp!
+                    .before exporter.$loadingIcon
+                exporter.setWorking true
             !function callback
+                exporter.setWorking false
                 exporter.$loadingIcon.remove!
                 $file .addClass \jtb-file-imported
 

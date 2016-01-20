@@ -2,8 +2,8 @@ exporter = require \api
 $filelist = require "importer-filelist" .$el
 
 <-! requestAnimationFrame
-$browser = $ \#browser
-$diag = $ \#import-playlist-container
+exporter.$browser = $browser = $ \#browser
+exporter.$diag    = $diag    = $ \#import-playlist-container
 
 
 # update Import Playlists button
@@ -55,6 +55,8 @@ $ "<h3 class='jtb-headline'>Export Playlists</h3>"
 $ "<button class='jtb-export-btn jtb-btn'>Download All</button>"
     .appendTo $diag
     .on \click, !->
+        return if exporter.working
+
         # update button text
         @textContent = "Downloading…"
 
@@ -62,8 +64,10 @@ $ "<button class='jtb-export-btn jtb-btn'>Download All</button>"
         clearTimeout @dataset.timeout
 
         # download all playlists in a zip
+        exporter.setWorking true
         exporter.downloadZip do
             (err, playlists) !~> # done fetching playlists
+                exporter.setWorking false
                 if err
                     console.error err
                     $ "<div class=jtb-error>"
@@ -136,7 +140,10 @@ Dubtrack.View.playlistItem::viewDetails = !->
     console.log "[viewDetails]", exporter.isImporting, @model.get(\_id)
     if exporter.isImporting
         plID = @model.get \_id
-        exporter.downloadPlaylist plID
+        if not exporter.working
+            exporter.setWorking true
+            exporter.downloadPlaylist plID, !->
+                exporter.setWorking false
     else
         @viewDetails_ ...
 # patch playlist click handler without redrawing
