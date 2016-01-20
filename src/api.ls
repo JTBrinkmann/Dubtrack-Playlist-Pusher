@@ -184,8 +184,8 @@ export
             exporter.$loadingIcon .remove!
             clearTimeout exporter.playlistLoadedResetTimeouts[pl._id]
             exporter.playlistLoadedResetTimeouts[pl._id] = setTimeout do
-                    $playlist .removeClass \jtb-playlist-loaded
                 !->
+                    $playlist .removeClass \jtb-playlist-loaded
                 PLAYLIST_LOADED_RESET_TIMEOUT
 
             # update avg. page fetch speed

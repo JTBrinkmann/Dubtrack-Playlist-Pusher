@@ -13,7 +13,12 @@ $ ".sidebar .import-playlist"
 # add FileList
 $filelist
     .hide!
-    .insertAfter $diag.find(\.playlist-type-select)
+    .appendTo $diag
+exporter.$importHint = $ "<div class=jtb-note style='display:none'>
+    note: Freshly imported playlists might not show up in the playlist-list,
+    \ or show up with with a wrong number of songs.
+    \ Refreshing the page fixes this (sorry)</div>"
+    .appendTo $diag
 
 # add import button
 # invisible file input button

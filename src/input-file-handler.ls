@@ -11,7 +11,7 @@ export handleInputFiles = (inputfiles) !->
         .append do # implied default selection
             $ "<option disabled>select destination</option>"
         .append do
-            $ "<option value=new>create new</option>"
+            $ "<option value=new>create new playlist</option>"
         .append do
             $ "<option disabled>------------------</option>"
 
@@ -23,6 +23,7 @@ export handleInputFiles = (inputfiles) !->
 
     # show filelist, if not already visible
     $filelist .show!
+    exporter.$importHint .show!
 
     # set up autoscrolling
     autoScrolling = 0
