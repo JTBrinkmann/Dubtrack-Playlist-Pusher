@@ -10,6 +10,7 @@ require! {
 # It will only result in exported playlists MISSING songs!
 const MAX_PAGE_SIZE = 20
 const FORMATS = [, \youtube, \soundcloud]
+const PLAYLIST_LOADED_RESET_TIMEOUT = 2min * 60_000min_to_ms
 
 
 browserIsSafari = navigator.vendor?.indexOf(\Apple) != -1
@@ -23,6 +24,7 @@ export
     aux: aux
     avgPageFetch: 200ms
     avgPageFetchSamples: 2
+    playlistLoadedResetTimeouts: {}
 
     # data
     playlists: {}
@@ -109,7 +111,7 @@ export
             # playlist not in playlistsArr
             callback new TypeError("playlist not found")
 
-    fetchPlaylist: (playlist, callback) !->
+    fetchPlaylist: (playlist, callback, etaCallback) !->
         # get current time for benchmarking
         d = Date.now!
 
@@ -117,21 +119,15 @@ export
         (err, pl) <-! exporter.getPlaylist(playlist)
         return callback?(err) if err
 
-        # check if we already have the playlist cached
-        if pl._id of exporter.playlists
-            # we do have it cached, serve it
-            return callback(,exporter.playlists[pl._id])
-
-        else if Dubtrack.app.browserView?.browserItemsList
-            # check if currently displayed playlist in playlist manager
-            # matches the playlist we're fetching (so we can avoid manually
-            # fetching the songs)
+        # check if currently displayed playlist in playlist manager
+        # matches the playlist we're fetching (so we can avoid manually
+        # fetching the songs)
+        /*if Dubtrack.app.browserView?.browserItemsList
             songs = Dubtrack.app.browserView.browserItemsList.model.models
             if songs.0?.attributes.playlistid == pl._id
                 for pl in Dubtrack.app.browserView.browserItemsList.model.models
                     ...
-
-        # playlist not cached yet, continue manually fetching
+        */
 
         # new and untouched playlists might not have a totalItems attribute
         totalItems = pl.totalItems || 0
@@ -155,13 +151,12 @@ export
             songs = new Array(totalItems)
             offset = 0
             page = 0
-            exporter._debug.playlists[pl.name] = []
 
             # fetch a single page
             do fetchPage = !->
                 if ++page <= pages
+                    etaCallback?(page, pages)
                     (page) <-! aux.fetch "songs (#{pl.name}) [#page/#pages]", "https://api.dubtrack.fm/playlist/#{pl._id}/songs?page=#page"
-                    exporter._debug.playlists[pl.name][*] = page
                     try
                         # convert song data to plug.dj format
                         for {_song}, o in page
@@ -184,8 +179,23 @@ export
                     defFetchSongs.resolve(songs)
 
         .then (songs) !-> # fetched all songs, continue
-            # cache result
-            exporter.playlists[pl._id] =
+            # visually indicate we're done loading
+            $playlist .addClass \jtb-playlist-loaded
+            exporter.$loadingIcon .remove!
+            clearTimeout exporter.playlistLoadedResetTimeouts[pl._id]
+            exporter.playlistLoadedResetTimeouts[pl._id] = setTimeout do
+                    $playlist .removeClass \jtb-playlist-loaded
+                !->
+                PLAYLIST_LOADED_RESET_TIMEOUT
+
+            # update avg. page fetch speed
+            if pages != 0
+                exporter.avgPageFetch *= exporter.avgPageFetchSamples
+                exporter.avgPageFetch += (Date.now! - d)/pages
+                exporter.avgPageFetch /= ++exporter.avgPageFetchSamples
+
+            # call callback, if any
+            callback? null,
                 id: pl._id
                 name: pl.name
                 totalItems: totalItems
@@ -201,20 +211,7 @@ export
                     meta:
                         id: pl.id
                         name: pl.name
-                        totalItems: pl.totalItems
-
-            # visually indicate we're done loading
-            $playlist .addClass \jtb-playlist-loaded
-            exporter.$loadingIcon .remove!
-
-            # update avg. page fetch speed
-            if pages != 0
-                exporter.avgPageFetch *= exporter.avgPageFetchSamples
-                exporter.avgPageFetch += (Date.now! - d)/pages
-                exporter.avgPageFetch /= ++exporter.avgPageFetchSamples
-
-            # call callback, if any
-            callback?(,exporter.playlists[pl._id])
+                        totalItems: totalItems
 
     etaFetchAllPlaylists: (callback) !->
         # calculate the estimated time to fetch all playlists
@@ -228,41 +225,56 @@ export
             eta += exporter.avgPageFetch * Math.ceil(pl.totalItems / MAX_PAGE_SIZE)
 
         console.info "ETA for fetching all songs: %c#{Math.round(eta/1000)}s", 'font-weight: bold'
-        callback(null, eta)
+        callback(,eta)
 
     fetchAllPlaylists: (callback, etaCallback) !->
         # get list of all playlists
         # if already cached, this will be synchroneous
-        if typeof etaCallback == \function
-            var etaTimeout
-            updateETA = !->
-                clearTimeout etaTimeout
-                (err, eta) <-! exporter.etaFetchAllPlaylists
-                if not err
-                    etaCallback Math.round(eta/1000ms_to_s)
-                    etaTimeout := setTimeout updateETA, 1_000ms
 
         (err, playlistsArr) <-! exporter.fetchPlaylistsList
         return callback?(err) if err
 
+        if typeof etaCallback == \function
+            # calculate eta
+            remainingPages = 0
+
+            # loop through all playlists and increase the eta by
+            # the amount of pages * average time to fetch a page
+            for pl in playlistsArr when pl.totalItems
+                remainingPages += Math.ceil(pl.totalItems / MAX_PAGE_SIZE)
+
+            var etaTimeout
+            updateETA = !->
+                clearTimeout etaTimeout
+                console.log "[eta]", remainingPages, exporter.avgPageFetch, "=>", "#{remainingPages*exporter.avgPageFetch/1000ms_to_s}s"
+                etaCallback(,Math.round remainingPages*exporter.avgPageFetch/1000ms_to_s)
+                etaTimeout := setTimeout updateETA, 1_000ms
+
         # asynchroneously load all playlists and add them to zip
         $.Deferred (defFetchPlaylists) !->
             console.time? "fetched playlists' songs"
+            res = {}
             i = 0
-            do fetchNextPlaylist = (err) !->
+            do fetchNextPlaylist = (err, playlist) !->
                 return callback?(err) if err
+                if playlist
+                    res[playlist.id] = playlist
+
+                pl = playlistsArr[i++]
 
                 # update eta
                 updateETA! if updateETA
 
                 # load next playlist, if any
-                pl = playlistsArr[i++]
                 if pl
-                    exporter.fetchPlaylist pl, fetchNextPlaylist
+                    exporter.fetchPlaylist pl, fetchNextPlaylist, updateETA && (page) !->
+                        # eta update
+                        remainingPages--
+                        updateETA!
                 else
-                    defFetchPlaylists.resolve!
+                    defFetchPlaylists.resolve res
 
-        .then !->
+        .then (res) !->
             # done fetching playlist data!
             console.timeEnd? "fetched playlists' songs"
 
@@ -270,41 +282,49 @@ export
             clearTimeout etaTimeout if updateETA
 
             # call callback, if any
-            callback?!
+            callback?(,res)
 
-    downloadPlaylist: (playlist) !->
+    downloadPlaylist: (playlist, callback) !->
         (err, pl) <-! exporter.fetchPlaylist(playlist)
         return callback?(err) if err
 
         # make sure Import/Export Dialog is displayed
         $ ".play-song-link, .sidebar .import-playlist" .click!
 
+        json = JSON.stringify(pl.data)
         if exporter.browserIsSafari # show in text area
-            exporter.$data.val JSON.stringify(pl.data)
+            exporter.$data.val json
             exporter.$name.text "#{pl.name}.json"
         else # download as file (worst case: open it in a new tab/window)
-            saveTextAs JSON.stringify(pl.data), "#{pl.name}.json"
-    downloadZip: !->
-        # create ZIP file
-        if not exporter.zip
-            exporter.zip = new JSZip()
-            for ,pl of exporter.playlists
-                # Autorename file, if file with same name already present
-                # (Dubtrack allows multiple playlists to have the same name
-                # however, files in ZIPs cannot have the same name,
-                # while being in the same folder)
-                o = 1
-                filename = pl.name
-                while filename of exporter.zip.files
-                    filename = "#{pl.name} (#{++o})"
+            saveTextAs json, "#{pl.name}.json"
+        callback?(, pl)
 
-                # add fille to zip
-                exporter.zip.file "#{filename}.json", JSON.stringify pl.data
+    downloadZip: (callback, etaCallback) !->
+        # fetch all songs
+        (err, playlists) <-! exporter.fetchAllPlaylists _, etaCallback
+        return callback?(err) if err
+
+        # create ZIP file
+        zip = new JSZip()
+        for ,pl of exporter.playlists
+            # Autorename file, if file with same name already present
+            # (Dubtrack allows multiple playlists to have the same name
+            # however, files in ZIPs cannot have the same name,
+            # while being in the same folder)
+            o = 1
+            filename = pl.name
+            while filename of zip.files
+                filename = "#{pl.name} (#{++o})"
+
+            # add file to zip
+            zip.file "#{filename}.json", JSON.stringify pl.data
 
         # download ZIP
         date = /[^T]+/.exec(new Date().toISOString!).0
-        saveAs exporter.zip.generate(type:\blob), "#{date}_dubtrack_playlists.zip"
+        saveAs zip.generate(type:\blob), "#{date}_dubtrack_playlists.zip"
         console.log "zip download started!"
+        callback?(,playlists)
+
 
 
 

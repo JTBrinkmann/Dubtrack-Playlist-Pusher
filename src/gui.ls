@@ -50,22 +50,42 @@ $ "<h3 class='jtb-headline'>Export Playlists</h3>"
 $ "<button class='jtb-export-btn jtb-btn'>Download All</button>"
     .appendTo $diag
     .on \click, !->
+        # update button text
         @textContent = "Downloading…"
 
-        # fetch all playlists (if necessary)
-        exporter.fetchAllPlaylists do
-            (err) !~> # done fetching
+        # clear button text reset timer, if any
+        clearTimeout @dataset.timeout
+
+        # download all playlists in a zip
+        exporter.downloadZip do
+            (err, playlists) !~> # done fetching playlists
                 if err
+                    console.error err
                     $ "<div class=jtb-error>"
                         .text err.message
                         .insertAfter this
                 else
-                    # download as ZIP, ASAP
-                    exporter.downloadZip!
+                    # note: the ZIP isn't necessarily done saving yet
+                    # but it really doesn't matter to us
+
+                    # update button text
                     @textContent = "Downloaded All ✔"
 
-            (eta) !~> # ETA update
-                @textContent = "Downloading… ca. #{eta}s"
+                    # reset button text after 1 minute
+                    @dataset.timeout = setTimeout do
+                        !~>
+                            @textContent "Download All"
+                        10min * 60_000min_to_ms
+
+            (err, eta) !~> # ETA update
+                if err
+                    console.error err
+                else
+                    if eta < 1
+                        eta = "<1"
+                    else
+                        eta = "ca. #eta"
+                    @textContent = "Downloading… #{eta}s"
 
     # we can't download the auto-generated zip on Safari and IE9-
     .toggle exporter.browserSupportsZip
