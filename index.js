@@ -729,14 +729,16 @@
 
 	var $el, out$ = typeof exports != 'undefined' && exports || this;
 	out$.$el = $el = $("<ul class='jtb jtb-files'>").on('input', '.jtb-playlist-select', function(){
-	  var plID;
+	  var plID, $file, $sel;
 	  plID = $(this).val();
 	  if (plID === 'new') {
-	    console.log("selected 'new playlist'");
-	    throw Error('unimplemented');
+	    console.log("selected 'new playlist' destination");
+	    $file = $(this).closest('.jtb-file');
+	    $sel = $file.find('.jtb-playlist-select');
+	    $("<input class=jtb-name-input placeholder='new playlist name'>").insertAfter($sel.hide()).focus();
+	    $("<button class='jtb-abort-btn jtb-btn'>✘</button>").appendTo($sel.parent());
 	  } else {
 	    console.log("selected playlist " + plID + " (" + $(this).text() + ")");
-	    throw Error('unimplemented');
 	  }
 	}).on('click', '.jtb-import-pl-btn', function(){
 	  var $file, $sel, plID, file, songs, name, $input, nameInput;
@@ -748,7 +750,9 @@
 	  plID = $sel.val();
 	  file = $file.data('file');
 	  songs = file.parsed.data;
-	  if (plID === 'new-suggested') {
+	  if (!plID) {
+	    alert("please select a playlist to import to");
+	  } else if (plID === 'new-suggested') {
 	    name = file.name.replace(/\.json(?:\.txt)?$|\.txt$/, '');
 	    startWorking();
 	    exporter.createPlaylist(name, songs, callback);
