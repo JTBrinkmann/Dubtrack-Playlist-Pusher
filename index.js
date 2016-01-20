@@ -444,13 +444,13 @@
 	};
 	ref2$.downloadZip = function(callback, etaCallback){
 	  exporter.fetchAllPlaylists(function(err, playlists){
-	    var zip, i$, ref$, pl, o, filename, date;
+	    var zip, i$, pl, o, filename, date;
 	    if (err) {
 	      return typeof callback == 'function' ? callback(err) : void 8;
 	    }
 	    zip = new JSZip();
-	    for (i$ in ref$ = exporter.playlists) {
-	      pl = ref$[i$];
+	    for (i$ in playlists) {
+	      pl = playlists[i$];
 	      o = 1;
 	      filename = pl.name;
 	      while (filename in zip.files) {

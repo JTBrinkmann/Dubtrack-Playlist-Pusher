@@ -340,7 +340,7 @@ export
 
         # create ZIP file
         zip = new JSZip()
-        for ,pl of exporter.playlists
+        for ,pl of playlists
             # Autorename file, if file with same name already present
             # (Dubtrack allows multiple playlists to have the same name
             # however, files in ZIPs cannot have the same name,
