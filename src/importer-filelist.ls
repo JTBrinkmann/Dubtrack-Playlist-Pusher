@@ -1,5 +1,5 @@
 export $el = do
-    $ "<ul class='jtb-files'>"
+    $ "<ul class='jtb jtb-files'>"
         .on \input, \.jtb-playlist-select, !->
             plID = $ this .val!
             if plID == \new

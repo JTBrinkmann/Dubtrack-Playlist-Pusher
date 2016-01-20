@@ -43,6 +43,34 @@ export
         exporter.working = val
         exporter.$browser?.toggleClass \jtb-working, val
 
+    noConflict: !->
+        # remove DOM elements
+        $ \.jtb .remove!
+
+        exporter.$browser
+            # remove custom CSS classes
+            .removeClass "jtb-dropping jtb-importing jtb-working"
+            # detach drag'n'drop event listeners
+            .off 'dragover dragend dragenter dragleave drop'
+        $ \.close-import-playlist
+            .off \click, exporter._closeBtnClick
+
+        # revert import button text
+        $ ".sidebar .import-playlist"
+            .contents!.1 .textContent = exporter._importBtnText
+
+        # revert monkey-patched functions
+        Dubtrack.View.ImportPlaylistBrowser::openView = Dubtrack.View.ImportPlaylistBrowser::openView_
+        delete Dubtrack.View.ImportPlaylistBrowser::openView_
+
+        Dubtrack.View.ImportPlaylistBrowser::closeView = Dubtrack.View.ImportPlaylistBrowser::closeView_
+        delete Dubtrack.View.ImportPlaylistBrowser::closeView_
+
+        Dubtrack.View.playlistItem::viewDetails = Dubtrack.View.playlistItem::viewDetails_
+        delete Dubtrack.View.playlistItem::viewDetails_
+
+        # keep the patched $(".playlist_icon") click handler
+
 
 
     #== EXPORTER ==
@@ -376,3 +404,5 @@ export
                         callback(,songsArray)
 
     handleInputFiles: handleInputFiles
+
+export close = exporter.noConflict

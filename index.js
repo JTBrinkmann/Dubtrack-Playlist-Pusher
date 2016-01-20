@@ -60,15 +60,21 @@
 	 * You can find the source files at:
 	 * https://github.com/JTBrinkmann/Dubtrack-Playlist-Pusher/tree/master/src
 	 */
-	var aux, api, $css;
+	var ref$, aux, $css;
+	try {
+	  if ((ref$ = window.exporter) != null) {
+	    if (typeof ref$.noConflict == 'function') {
+	      ref$.noConflict();
+	    }
+	  }
+	} catch (e$) {}
 	aux = __webpack_require__(1);
-	api = __webpack_require__(2);
 	aux.getScript('FileSaver', 'saveAs', "https://cdn.rawgit.com/koffsyrup/FileSaver.js/master/FileSaver.js");
 	$('#jtb-css').remove();
 	$css = $("<link rel=stylesheet id=jtb-css href='https://cdn.rawgit.com/JTBrinkmann/dubtrack-playlist-exporter/master/styles.css'>").appendTo('head');
 	$('.play-song-link').click();
 	window.exporter = __webpack_require__(2);
-	if (exporter.browserSupportsZip) {
+	if (window.exporter.browserSupportsZip) {
 	  aux.getScript('JSZip', 'JSZip', "https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js");
 	}
 	Dubtrack.app.loadUserPlaylists(function(){
@@ -132,7 +138,7 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, browserIsSafari, ref$, ref1$, exporter, ref2$, out$ = typeof exports != 'undefined' && exports || this;
+	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, browserIsSafari, ref$, ref1$, exporter, ref2$, close, out$ = typeof exports != 'undefined' && exports || this;
 	aux = __webpack_require__(1);
 	handleInputFiles = __webpack_require__(3).handleInputFiles;
 	MAX_PAGE_SIZE = 20;
@@ -160,6 +166,18 @@
 	  if ((ref$ = exporter.$browser) != null) {
 	    ref$.toggleClass('jtb-working', val);
 	  }
+	};
+	ref2$.noConflict = function(){
+	  $('.jtb').remove();
+	  exporter.$browser.removeClass("jtb-dropping jtb-importing jtb-working").off('dragover dragend dragenter dragleave drop');
+	  $('.close-import-playlist').off('click', exporter._closeBtnClick);
+	  $(".sidebar .import-playlist").contents()[1].textContent = exporter._importBtnText;
+	  Dubtrack.View.ImportPlaylistBrowser.prototype.openView = Dubtrack.View.ImportPlaylistBrowser.prototype.openView_;
+	  delete Dubtrack.View.ImportPlaylistBrowser.prototype.openView_;
+	  Dubtrack.View.ImportPlaylistBrowser.prototype.closeView = Dubtrack.View.ImportPlaylistBrowser.prototype.closeView_;
+	  delete Dubtrack.View.ImportPlaylistBrowser.prototype.closeView_;
+	  Dubtrack.View.playlistItem.prototype.viewDetails = Dubtrack.View.playlistItem.prototype.viewDetails_;
+	  delete Dubtrack.View.playlistItem.prototype.viewDetails_;
 	};
 	ref2$.fetchPlaylistsList = function(callback){
 	  var pls, i, playlistsArr, res$;
@@ -503,6 +521,7 @@
 	  } importSong();
 	};
 	ref2$.handleInputFiles = handleInputFiles;
+	out$.close = close = exporter.noConflict;
 
 /***/ },
 /* 3 */
@@ -705,7 +724,7 @@
 /***/ function(module, exports) {
 
 	var $el, out$ = typeof exports != 'undefined' && exports || this;
-	out$.$el = $el = $("<ul class='jtb-files'>").on('input', '.jtb-playlist-select', function(){
+	out$.$el = $el = $("<ul class='jtb jtb-files'>").on('input', '.jtb-playlist-select', function(){
 	  var plID;
 	  plID = $(this).val();
 	  if (plID === 'new') {
@@ -775,18 +794,20 @@
 	exporter = __webpack_require__(2);
 	$filelist = __webpack_require__(4).$el;
 	requestAnimationFrame(function(){
-	  var $browser, $diag, $fileInput, isFileSelecting, ref$, dragTarget;
+	  var $browser, $diag, x$, $fileInput, isFileSelecting, ref$, dragTarget;
 	  exporter.$browser = $browser = $('#browser');
 	  exporter.$diag = $diag = $('#import-playlist-container');
-	  $(".sidebar .import-playlist").contents()[1].textContent = " Import/Export playlists";
+	  x$ = $(".sidebar .import-playlist").contents()[1];
+	  exporter._importBtnText = x$.textContent;
+	  x$.textContent = " Import/Export playlists";
 	  $filelist.hide().appendTo($diag);
-	  exporter.$importHint = $("<div class=jtb-note style='display:none'>note: Freshly imported playlists might not show up in the playlist-list,\ or show up with with a wrong number of songs.\ Refreshing the page fixes this (sorry)</div>").appendTo($diag);
-	  $fileInput = $("<input type='file' multiple>").hide().appendTo(document.body).on('change', function(){
+	  exporter.$importHint = $("<div class='jtb jtb-note' style='display:none'>note: Freshly imported playlists might not show up in the playlist-list,\ or show up with with a wrong number of songs.\ Refreshing the page fixes this (sorry)</div>").appendTo($diag);
+	  $fileInput = $("<input class=jtb type='file' multiple>").hide().appendTo(document.body).on('change', function(){
 	    console.log("file selector onchange");
 	    exporter.handleInputFiles(this.files);
 	  });
 	  isFileSelecting = false;
-	  $("<button class='jtb-import-btn'>Plug.dj / Dubtrack</button>").appendTo($diag.find('.playlist-type-select')).on('click', function(){
+	  $("<button class='jtb jtb-import-btn'>Plug.dj / Dubtrack</button>").appendTo($diag.find('.playlist-type-select')).on('click', function(){
 	    console.log("import btn click");
 	    if (!isFileSelecting) {
 	      isFileSelecting = true;
@@ -797,10 +818,10 @@
 	    }
 	  });
 	  if (exporter.browserSupportsDragnDrop) {
-	    $diag.find('.playlist-type-select').append($("<div class='jtb-note'>or drag'n'drop the zip/JSON file here.</div>"));
+	    $diag.find('.playlist-type-select').append($("<div class='jtb jtb-note'>or drag'n'drop the zip/JSON file here.</div>"));
 	  }
-	  $("<h3 class='jtb-headline'>Export Playlists</h3>").appendTo($diag);
-	  $("<button class='jtb-export-btn jtb-btn'>Download All</button>").appendTo($diag).on('click', function(){
+	  $("<h3 class='jtb jtb-headline'>Export Playlists</h3>").appendTo($diag);
+	  $("<button class='jtb jtb-export-btn jtb-btn'>Download All</button>").appendTo($diag).on('click', function(){
 	    var this$ = this;
 	    if (exporter.working) {
 	      return;
@@ -812,7 +833,7 @@
 	      exporter.setWorking(false);
 	      if (err) {
 	        console.error(err);
-	        $("<div class=jtb-error>").text(err.message).insertAfter(this$);
+	        $("<div class='jtb jtb-error'>").text(err.message).insertAfter(this$);
 	      } else {
 	        this$.textContent = "Downloaded All ✔";
 	        this$.dataset.timeout = setTimeout(function(){
@@ -832,21 +853,23 @@
 	      }
 	    });
 	  }).toggle(exporter.browserSupportsZip);
-	  $("<div class='jtb-note'>or click the playlist names<br>to export them individually</div>").appendTo($diag);
+	  $("<div class='jtb jtb-note'>or click the playlist names<br>to export them individually</div>").appendTo($diag);
 	  if (exporter.browserIsSafari) {
-	    exporter.$name = $("<b>");
-	    exporter.$data = $("<textarea>").css({
+	    exporter.$name = $("<b class=jtb>").appendTo($diag);
+	    exporter.$data = $("<textarea class=jtb>").css({
 	      maxHeight: '5em'
-	    }).attr('placeholder', "note: because the Safari developers explicitly don't\ want to let you download files that were generated on-the-fly,\ you <b>cannot</b> download playlists as files on Safari.\ Instead, click on a playlist (in the left) and then copy the text\ from here and save it in a file manually… or just use a better browser").appendTo($diag).on('focus', function(it){
+	    }).attr('placeholder', "note: because the Safari developers explicitly don't\ want to let you download files that were generated on-the-fly,\ you <b>cannot</b> download playlists as files on Safari.\ Instead, click on a playlist (in the left) and then copy the text\ from here and save it in a file manually… or just use a better browser").on('focus', function(it){
 	      return it.select();
-	    });
+	    }).appendTo($diag);
 	  }
 	  (ref$ = Dubtrack.View.ImportPlaylistBrowser.prototype).openView_ || (ref$.openView_ = Dubtrack.View.ImportPlaylistBrowser.prototype.openView);
 	  Dubtrack.View.ImportPlaylistBrowser.prototype.openView = function(){
-	    console.log("[ImportPlaylistBrowser] openView");
-	    $browser.addClass('jtb-importing');
-	    exporter.isImporting = true;
-	    this.openView_.apply(this, arguments);
+	    if (!exporter.isImporting) {
+	      console.log("[ImportPlaylistBrowser] openView");
+	      $browser.addClass('jtb-importing');
+	      exporter.isImporting = true;
+	      this.openView_.apply(this, arguments);
+	    }
 	  };
 	  (ref$ = Dubtrack.View.ImportPlaylistBrowser.prototype).closeView_ || (ref$.closeView_ = Dubtrack.View.ImportPlaylistBrowser.prototype.closeView);
 	  Dubtrack.View.ImportPlaylistBrowser.prototype.closeView = function(){
@@ -855,7 +878,7 @@
 	    exporter.isImporting = false;
 	    this.closeView_.apply(this, arguments);
 	  };
-	  $('.close-import-playlist').on('click', function(){
+	  $('.close-import-playlist').off('click', exporter._closeBtnClick).on('click', exporter._closeBtnClick = function(){
 	    $browser.removeClass('jtb-importing');
 	    exporter.isImporting = false;
 	  });

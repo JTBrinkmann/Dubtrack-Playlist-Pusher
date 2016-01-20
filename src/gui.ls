@@ -7,14 +7,15 @@ exporter.$diag    = $diag    = $ \#import-playlist-container
 
 
 # update Import Playlists button
-$ ".sidebar .import-playlist"
-    .contents!.1 .textContent = " Import/Export playlists"
+$ ".sidebar .import-playlist" .contents!.1
+    exporter._importBtnText = ..textContent
+    ..textContent = " Import/Export playlists"
 
 # add FileList
 $filelist
     .hide!
     .appendTo $diag
-exporter.$importHint = $ "<div class=jtb-note style='display:none'>
+exporter.$importHint = $ "<div class='jtb jtb-note' style='display:none'>
     note: Freshly imported playlists might not show up in the playlist-list,
     \ or show up with with a wrong number of songs.
     \ Refreshing the page fixes this (sorry)</div>"
@@ -22,7 +23,7 @@ exporter.$importHint = $ "<div class=jtb-note style='display:none'>
 
 # add import button
 # invisible file input button
-$fileInput = $ "<input type='file' multiple>"
+$fileInput = $ "<input class=jtb type='file' multiple>"
     .hide!
     .appendTo document.body
     .on \change, !->
@@ -31,7 +32,7 @@ $fileInput = $ "<input type='file' multiple>"
 
 # visible import button
 isFileSelecting = false
-$ "<button class='jtb-import-btn'>Plug.dj / Dubtrack</button>"
+$ "<button class='jtb jtb-import-btn'>Plug.dj / Dubtrack</button>"
     .appendTo $diag.find \.playlist-type-select
     .on \click, !->
         console.log "import btn click"
@@ -45,14 +46,14 @@ $ "<button class='jtb-import-btn'>Plug.dj / Dubtrack</button>"
 if exporter.browserSupportsDragnDrop
     $diag.find \.playlist-type-select
         .append do
-            $ "<div class='jtb-note'>or drag'n'drop the zip/JSON file here.</div>"
+            $ "<div class='jtb jtb-note'>or drag'n'drop the zip/JSON file here.</div>"
 
 # add Export Playlist section
-$ "<h3 class='jtb-headline'>Export Playlists</h3>"
+$ "<h3 class='jtb jtb-headline'>Export Playlists</h3>"
     .appendTo $diag
 
 # Export All Playlists button
-$ "<button class='jtb-export-btn jtb-btn'>Download All</button>"
+$ "<button class='jtb jtb-export-btn jtb-btn'>Download All</button>"
     .appendTo $diag
     .on \click, !->
         return if exporter.working
@@ -70,7 +71,7 @@ $ "<button class='jtb-export-btn jtb-btn'>Download All</button>"
                 exporter.setWorking false
                 if err
                     console.error err
-                    $ "<div class=jtb-error>"
+                    $ "<div class='jtb jtb-error'>"
                         .text err.message
                         .insertAfter this
                 else
@@ -100,26 +101,27 @@ $ "<button class='jtb-export-btn jtb-btn'>Download All</button>"
     .toggle exporter.browserSupportsZip
 
 # individual playlist export hint
-$ "<div class='jtb-note'>or click the playlist names<br>to export them individually</div>"
+$ "<div class='jtb jtb-note'>or click the playlist names<br>to export them individually</div>"
     .appendTo $diag
 
 # safari warning
 if exporter.browserIsSafari
-    exporter.$name = $ "<b>"
-    exporter.$data = $ "<textarea>"
+    exporter.$name = $ "<b class=jtb>"
+        .appendTo $diag
+    exporter.$data = $ "<textarea class=jtb>"
         .css maxHeight: \5em
         .attr \placeholder, "note: because the Safari developers explicitly don't
         \ want to let you download files that were generated on-the-fly,
         \ you <b>cannot</b> download playlists as files on Safari.
         \ Instead, click on a playlist (in the left) and then copy the text
         \ from here and save it in a file manually… or just use a better browser"
-        .appendTo $diag
         .on \focus, (.select!)
+        .appendTo $diag
 
 
 
 Dubtrack.View.ImportPlaylistBrowser::openView_ ||= Dubtrack.View.ImportPlaylistBrowser::openView
-Dubtrack.View.ImportPlaylistBrowser::openView = !->
+Dubtrack.View.ImportPlaylistBrowser::openView = !-> if not exporter.isImporting
     console.log "[ImportPlaylistBrowser] openView"
     $browser .addClass \jtb-importing
     exporter.isImporting := true
@@ -131,7 +133,8 @@ Dubtrack.View.ImportPlaylistBrowser::closeView = !->
     exporter.isImporting := false
     @closeView_ ...
 $ \.close-import-playlist
-    .on \click, !->
+    .off \click, exporter._closeBtnClick
+    .on \click, exporter._closeBtnClick = !->
         $browser .removeClass \jtb-importing
         exporter.isImporting := false
 

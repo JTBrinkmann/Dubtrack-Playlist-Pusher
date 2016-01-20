@@ -15,9 +15,11 @@
  * https://github.com/JTBrinkmann/Dubtrack-Playlist-Pusher/tree/master/src
  */
 
+# close previous instance, if any
+try window.exporter?.noConflict?!
+
 require! {
     auxiliaries: 'aux'
-    api
 }
 
 
@@ -37,7 +39,7 @@ $ \.play-song-link .click!
 window.exporter = require \api
 
 # let JSZip load in the background, if downloading ZIPs is supported
-if exporter.browserSupportsZip
+if window.exporter.browserSupportsZip
     aux.getScript \JSZip, \JSZip, "https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"
 
 
