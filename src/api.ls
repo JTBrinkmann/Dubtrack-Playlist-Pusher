@@ -11,6 +11,7 @@ require! {
 const MAX_PAGE_SIZE = 20
 const FORMATS = [, \youtube, \soundcloud]
 const PLAYLIST_LOADED_RESET_TIMEOUT = 2min * 60_000min_to_ms
+const PLAYLIST_LIST_RESET_TIMEOUT   = 2min * 60_000min_to_ms
 
 
 browserIsSafari = navigator.vendor?.indexOf(\Apple) != -1
@@ -86,9 +87,6 @@ export
             pls = Dubtrack.app.browserView.model.models; i = pls.length
             playlistsArr = [pls[i].attributes while i--]
 
-            # cache playlistsArr
-            exporter._playlistsArr = playlistsArr
-
             # call callback
             callback?(,playlistsArr)
 
@@ -108,6 +106,11 @@ export
 
             # cache playlistsArr
             exporter._playlistsArr = playlistsArr
+
+            # clear the cache later
+            setTimeout do
+                !-> delete exporter._playlistsArr
+                PLAYLIST_LIST_RESET_TIMEOUT
 
             # call callback
             callback?(,playlistsArr)
@@ -133,11 +136,11 @@ export
                 return
 
             # make sure playlist-list is loaded, first
-            (err) <-! exporter.fetchPlaylistsList
+            (err, playlistsArr) <-! exporter.fetchPlaylistsList
             return callback(err) if err
 
             # loop through all playlists to find the one we're looking for
-            for pl in exporter._playlistsArr when pl._id == plID
+            for pl in playlistsArr when pl._id == plID
                 return callback(,pl)
 
             # playlist not in playlistsArr
@@ -365,9 +368,15 @@ export
         if not optSongs or typeof optSongs == \function
             callback = optSongs
             optSongs = null
+
+        # clear playlists-list cache (because we're adding a playlist now, duh)
+        delete exporter._playlistsArr
+
+        # create playlist
         new Dubtrack.Model.Playlist(name: name)
             ..parse = Dubtrack.helpers.parse
             ..save {}, success: (pl) !->
+                # add playlist locally (might not always trigger a redraw)
                 Dubtrack.user.playlist.add pl
                 if optSongs
                     exporter.importSongs pl.id, optSongs, callback, ..

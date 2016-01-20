@@ -138,12 +138,13 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, browserIsSafari, ref$, ref1$, exporter, ref2$, close, out$ = typeof exports != 'undefined' && exports || this;
+	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, PLAYLIST_LIST_RESET_TIMEOUT, browserIsSafari, ref$, ref1$, exporter, ref2$, close, out$ = typeof exports != 'undefined' && exports || this;
 	aux = __webpack_require__(1);
 	handleInputFiles = __webpack_require__(3).handleInputFiles;
 	MAX_PAGE_SIZE = 20;
 	FORMATS = [void 8, 'youtube', 'soundcloud'];
 	PLAYLIST_LOADED_RESET_TIMEOUT = 2 * 60000;
+	PLAYLIST_LIST_RESET_TIMEOUT = 2 * 60000;
 	browserIsSafari = ((ref$ = navigator.vendor) != null ? ref$.indexOf('Apple') : void 8) !== -1 && !((ref1$ = navigator.userAgent) != null && ref1$.indexOf('CriOS')) !== -1;
 	exporter = module.exports;
 	ref2$ = out$;
@@ -193,7 +194,6 @@
 	      res$.push(pls[i].attributes);
 	    }
 	    playlistsArr = res$;
-	    exporter._playlistsArr = playlistsArr;
 	    if (typeof callback == 'function') {
 	      callback(void 8, playlistsArr);
 	    }
@@ -213,6 +213,9 @@
 	        }
 	      });
 	      exporter._playlistsArr = playlistsArr;
+	      setTimeout(function(){
+	        delete exporter._playlistsArr;
+	      }, PLAYLIST_LIST_RESET_TIMEOUT);
 	      if (typeof callback == 'function') {
 	        callback(void 8, playlistsArr);
 	      }
@@ -237,13 +240,13 @@
 	      callback(new TypeError("no valid playlist specified"));
 	      return;
 	    }
-	    exporter.fetchPlaylistsList(function(err){
-	      var i$, ref$, len$, pl;
+	    exporter.fetchPlaylistsList(function(err, playlistsArr){
+	      var i$, len$, pl;
 	      if (err) {
 	        return callback(err);
 	      }
-	      for (i$ = 0, len$ = (ref$ = exporter._playlistsArr).length; i$ < len$; ++i$) {
-	        pl = ref$[i$];
+	      for (i$ = 0, len$ = playlistsArr.length; i$ < len$; ++i$) {
+	        pl = playlistsArr[i$];
 	        if (pl._id === plID) {
 	          return callback(void 8, pl);
 	        }
@@ -471,6 +474,7 @@
 	    callback = optSongs;
 	    optSongs = null;
 	  }
+	  delete exporter._playlistsArr;
 	  x$ = new Dubtrack.Model.Playlist({
 	    name: name
 	  });
