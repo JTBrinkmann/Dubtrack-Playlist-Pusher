@@ -53,9 +53,12 @@
 	 * Technically it would only need  to save format and cid/fkid
 	 * of each song, for importers to work.
 	 *
-	 * This is a more serious implementation. For a more fun one (ab)using
-	 * fancy code-patterns and newer browser features, see the file
-	 * exporter.es2015.ls (in the same folder / at the same base URL as this one)
+	 * NOTE: THIS SCRIPT WAS WRITTEN IN LIVESCRIPT!
+	 * If you are looking at the JavaScript source, you might want to instead
+	 * hop over to the livescript source files, for a more understandable
+	 * and better documented code (LiveScript strips single line comments when compiled)
+	 * You can find the source files at:
+	 * https://github.com/JTBrinkmann/Dubtrack-Playlist-Pusher/tree/master/src
 	 */
 	var aux, api, $css;
 	aux = __webpack_require__(1);

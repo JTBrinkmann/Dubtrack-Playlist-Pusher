@@ -12,10 +12,10 @@ const MAX_PAGE_SIZE = 20
 const FORMATS = [, \youtube, \soundcloud]
 
 
-#== API ==
 browserIsSafari = navigator.vendor?.indexOf(\Apple) != -1
     and not navigator.userAgent?.indexOf(\CriOS) != -1
 
+#== API ==
 exporter = module.exports
 export
     #== misc ==
@@ -85,6 +85,7 @@ export
             callback new TypeError("no valid playlist specified")
 
         else if playlist._id
+            # parameter is already the desired playlist object
             callback(,playlist)
         else
             # parse playlist parameter
@@ -97,9 +98,11 @@ export
                 callback new TypeError("no valid playlist specified")
                 return
 
+            # make sure playlist-list is loaded, first
             (err) <-! exporter.fetchPlaylistsList
             return callback(err) if err
 
+            # loop through all playlists to find the one we're looking for
             for pl in exporter._playlistsArr when pl._id == plID
                 return callback(,pl)
 
@@ -116,17 +119,19 @@ export
 
         # check if we already have the playlist cached
         if pl._id of exporter.playlists
+            # we do have it cached, serve it
             return callback(,exporter.playlists[pl._id])
+
         else if Dubtrack.app.browserView?.browserItemsList
-            songs = Dubtrack.app.browserView.browserItemsList.model.models
             # check if currently displayed playlist in playlist manager
             # matches the playlist we're fetching (so we can avoid manually
             # fetching the songs)
+            songs = Dubtrack.app.browserView.browserItemsList.model.models
             if songs.0?.attributes.playlistid == pl._id
                 for pl in Dubtrack.app.browserView.browserItemsList.model.models
                     ...
 
-            # if not, continue manually fetching
+        # playlist not cached yet, continue manually fetching
 
         # new and untouched playlists might not have a totalItems attribute
         totalItems = pl.totalItems || 0
@@ -158,8 +163,8 @@ export
                     (page) <-! aux.fetch "songs (#{pl.name}) [#page/#pages]", "https://api.dubtrack.fm/playlist/#{pl._id}/songs?page=#page"
                     exporter._debug.playlists[pl.name][*] = page
                     try
+                        # convert song data to plug.dj format
                         for {_song}, o in page
-                            # convert song data to plug.dj format
                             songs[o + offset] =
                                 id:       _song._id
                                 cid:      _song.fkid
@@ -202,7 +207,7 @@ export
             $playlist .addClass \jtb-playlist-loaded
             exporter.$loadingIcon .remove!
 
-            # update avg. export speed
+            # update avg. page fetch speed
             if pages != 0
                 exporter.avgPageFetch *= exporter.avgPageFetchSamples
                 exporter.avgPageFetch += (Date.now! - d)/pages
@@ -212,9 +217,12 @@ export
             callback?(,exporter.playlists[pl._id])
 
     etaFetchAllPlaylists: (callback) !->
+        # calculate the estimated time to fetch all playlists
         (err, playlistsArr) <-! exporter.fetchPlaylistsList
         return callback?(err) if err
 
+        # loop through all playlists and increase the eta by
+        # the amount of pages * average time to fetch a page
         eta = 0ms
         for pl in playlistsArr when pl.totalItems and pl._id not of exporter.playlists
             eta += exporter.avgPageFetch * Math.ceil(pl.totalItems / MAX_PAGE_SIZE)

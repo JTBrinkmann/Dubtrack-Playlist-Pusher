@@ -7,9 +7,12 @@
  * Technically it would only need  to save format and cid/fkid
  * of each song, for importers to work.
  *
- * This is a more serious implementation. For a more fun one (ab)using
- * fancy code-patterns and newer browser features, see the file
- * exporter.es2015.ls (in the same folder / at the same base URL as this one)
+ * NOTE: THIS SCRIPT WAS WRITTEN IN LIVESCRIPT!
+ * If you are looking at the JavaScript source, you might want to instead
+ * hop over to the livescript source files, for a more understandable
+ * and better documented code (LiveScript strips single line comments when compiled)
+ * You can find the source files at:
+ * https://github.com/JTBrinkmann/Dubtrack-Playlist-Pusher/tree/master/src
  */
 
 require! {
@@ -22,7 +25,7 @@ require! {
 aux.getScript \FileSaver, \saveAs, "https://cdn.rawgit.com/koffsyrup/FileSaver.js/master/FileSaver.js"
 
 
-# add CSS for spinning circle animation
+# add CSS
 $ \#jtb-css .remove!
 $css = $ "<link rel=stylesheet id=jtb-css href='https://cdn.rawgit.com/JTBrinkmann/dubtrack-playlist-exporter/master/styles.css'>"
     .appendTo \head
@@ -30,7 +33,7 @@ $css = $ "<link rel=stylesheet id=jtb-css href='https://cdn.rawgit.com/JTBrinkma
 # show playlist manager (for maximum fun)
 $ \.play-song-link .click!
 
-# load API
+# load Playlist Pusher API
 window.exporter = require \api
 
 # let JSZip load in the background, if downloading ZIPs is supported
