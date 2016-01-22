@@ -26,27 +26,31 @@ pusher.showSplitPlaylistGUI = (e) !->
 
     return if not @?model
     playlistid = @model.id
+    name = @model.get \name
 
 
     # Too lazy to actually add any customizable options here
-    pusher.splitPlaylist playlistid, size, "#{@model.get \name} (%d)",
-        (err) !->
-            $btn.text "Split Size: #size"
-            aux.errorHandler err if err
-        (err, eta) !->
-            console.log "Splitting… #{eta}s", new Date()
-            if eta >= 1
-                $btn.text "Splitting… #{eta}s"
-            else
-                $btn.text "Splitting…"
+    if pusher.working
+        aux.errorHandler new TypeError("already splitting")
+    else
+        pusher.setWorking true
+        pusher.splitPlaylist playlistid, size, "#name (%d)",
+            (err) !->
+                pusher.setWorking false
+                $btn.text "Split Size: #size"
+                if err
+                    aux.errorHandler err
+                else
+                    alert "done splitting \"#name\""
+            (err, eta) !->
+                if eta >= 1
+                    $btn.text "Splitting… #{eta}s"
+                else
+                    $btn.text "Splitting…"
 
 pusher.splitPlaylist = (playlistid, limit, nameTemplate, callback, etaCallback) !->
     if not isFinite(limit) or limit < 1
         return callback? new TypeError("limit too small")
-
-    if pusher.splitting
-        return callback? new TypeError("already splitting")
-    pusher.splitting = true
 
     if typeof callback != \function
         callback = null
