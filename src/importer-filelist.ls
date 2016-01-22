@@ -16,7 +16,7 @@ export $el = do
                 console.log "selected playlist #plID (#{$ this .text!})"
 
         .on \click, \.jtb-import-pl-btn, !->
-            return if exporter.working
+            return if pusher.working
 
             $file =  $ this .closest \.jtb-file
             $sel = $file .find \.jtb-playlist-select
@@ -30,7 +30,7 @@ export $el = do
             else if plID == \new-suggested
                 name = file.name .replace /\.json(?:\.txt)?$|\.txt$/, ''
                 startWorking!
-                exporter.createPlaylist do
+                pusher.createPlaylist do
                     name
                     songs
                     callback
@@ -54,7 +54,7 @@ export $el = do
                     # create new playlist
                     console.log "create new playlist"
                     startWorking!
-                    exporter.createPlaylist do
+                    pusher.createPlaylist do
                         nameInput
                         songs
                         callback
@@ -62,7 +62,7 @@ export $el = do
                 # import songs into existing playlist
                 console.log "import to playlist #plID"
                 startWorking!
-                exporter.importSongs do
+                pusher.importSongs do
                     plID
                     songs
                     callback
@@ -70,11 +70,11 @@ export $el = do
             !function startWorking
                 $file .find \.jtb-file-actions
                     .slideUp!
-                    .before exporter.$loadingIcon
-                exporter.setWorking true
+                    .before pusher.$loadingIcon
+                pusher.setWorking true
             !function callback
-                exporter.setWorking false
-                exporter.$loadingIcon.remove!
+                pusher.setWorking false
+                pusher.$loadingIcon.remove!
                 $file .addClass \jtb-file-imported
 
         .on \click, \.jtb-abort-btn, !->

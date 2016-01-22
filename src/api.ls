@@ -18,7 +18,7 @@ browserIsSafari = navigator.vendor?.indexOf(\Apple) != -1
     and not navigator.userAgent?.indexOf(\CriOS) != -1
 
 #== API ==
-exporter = module.exports
+pusher = module.exports
 export
     #== misc ==
     _debug: {}
@@ -41,24 +41,24 @@ export
     $loadingIcon: $ "<i class='jtb-spin'>C</i>"
 
     setWorking: (!!val) !->
-        exporter.working = val
-        exporter.$browser?.toggleClass \jtb-working, val
+        pusher.working = val
+        pusher.$browser?.toggleClass \jtb-working, val
 
     noConflict: !->
         # remove DOM elements
         $ \.jtb .remove!
 
-        exporter.$browser
+        pusher.$browser
             # remove custom CSS classes
             .removeClass "jtb-dropping jtb-importing jtb-working"
             # detach drag'n'drop event listeners
             .off 'dragover dragend dragenter dragleave drop'
         $ \.close-import-playlist
-            .off \click, exporter._closeBtnClick
+            .off \click, pusher._closeBtnClick
 
         # revert import button text
         $ ".sidebar .import-playlist"
-            .contents!.1 .textContent = exporter._importBtnText
+            .contents!.1 .textContent = pusher._importBtnText
 
         # revert monkey-patched functions
         Dubtrack.View.ImportPlaylistBrowser::openView = Dubtrack.View.ImportPlaylistBrowser::openView_
@@ -76,9 +76,9 @@ export
 
     #== EXPORTER ==
     fetchPlaylistsList: (callback) !->
-        if exporter._playlistsArr
+        if pusher._playlistsArr
             # we already have the playlistsArr cached, so we'll just serve that
-            callback?(,exporter._playlistsArr)
+            callback?(,pusher._playlistsArr)
 
         else if Dubtrack.app.browserView
             # playlist manager already opened => playlists are already cached
@@ -105,11 +105,11 @@ export
                 if a.name < b.name then -1 else if a.name > b.name then +1 else 0
 
             # cache playlistsArr
-            exporter._playlistsArr = playlistsArr
+            pusher._playlistsArr = playlistsArr
 
             # clear the cache later
             setTimeout do
-                !-> delete exporter._playlistsArr
+                !-> delete pusher._playlistsArr
                 PLAYLIST_LIST_RESET_TIMEOUT
 
             # call callback
@@ -136,7 +136,7 @@ export
                 return
 
             # make sure playlist-list is loaded, first
-            (err, playlistsArr) <-! exporter.fetchPlaylistsList
+            (err, playlistsArr) <-! pusher.fetchPlaylistsList
             return callback(err) if err
 
             # loop through all playlists to find the one we're looking for
@@ -151,7 +151,7 @@ export
         d = Date.now!
 
         # get playlist object, if pl is just the playlist ID
-        (err, pl) <-! exporter.getPlaylist(playlist)
+        (err, pl) <-! pusher.getPlaylist(playlist)
         return callback?(err) if err
 
         # check if currently displayed playlist in playlist manager
@@ -174,13 +174,13 @@ export
 
         # visually indicate that the playlist is loading
         $playlist = $ ".playlist-#{pl._id}"
-            .append exporter.$loadingIcon
+            .append pusher.$loadingIcon
 
         # fetch all songs
         # the Dubtrack server only lets us download MAX_PAGE_SIZE (20)
         # songs of a playlist per request, so we need to do multiple
         # requests to actually get all songs of the playlist
-        exporter._debug.playlists = {}
+        pusher._debug.playlists = {}
         pages = Math.ceil(totalItems / MAX_PAGE_SIZE)
         $.Deferred (defFetchSongs) !->
             songs = new Array(totalItems)
@@ -216,18 +216,18 @@ export
         .then (songs) !-> # fetched all songs, continue
             # visually indicate we're done loading
             $playlist .addClass \jtb-playlist-loaded
-            exporter.$loadingIcon .remove!
-            clearTimeout exporter.playlistLoadedResetTimeouts[pl._id]
-            exporter.playlistLoadedResetTimeouts[pl._id] = setTimeout do
+            pusher.$loadingIcon .remove!
+            clearTimeout pusher.playlistLoadedResetTimeouts[pl._id]
+            pusher.playlistLoadedResetTimeouts[pl._id] = setTimeout do
                 !->
                     $playlist .removeClass \jtb-playlist-loaded
                 PLAYLIST_LOADED_RESET_TIMEOUT
 
             # update avg. page fetch speed
             if pages != 0
-                exporter.avgPageFetch *= exporter.avgPageFetchSamples
-                exporter.avgPageFetch += (Date.now! - d)/pages
-                exporter.avgPageFetch /= ++exporter.avgPageFetchSamples
+                pusher.avgPageFetch *= pusher.avgPageFetchSamples
+                pusher.avgPageFetch += (Date.now! - d)/pages
+                pusher.avgPageFetch /= ++pusher.avgPageFetchSamples
 
             # call callback, if any
             callback? null,
@@ -250,14 +250,14 @@ export
 
     etaFetchAllPlaylists: (callback) !->
         # calculate the estimated time to fetch all playlists
-        (err, playlistsArr) <-! exporter.fetchPlaylistsList
+        (err, playlistsArr) <-! pusher.fetchPlaylistsList
         return callback?(err) if err
 
         # loop through all playlists and increase the eta by
         # the amount of pages * average time to fetch a page
         eta = 0ms
-        for pl in playlistsArr when pl.totalItems and pl._id not of exporter.playlists
-            eta += exporter.avgPageFetch * Math.ceil(pl.totalItems / MAX_PAGE_SIZE)
+        for pl in playlistsArr when pl.totalItems and pl._id not of pusher.playlists
+            eta += pusher.avgPageFetch * Math.ceil(pl.totalItems / MAX_PAGE_SIZE)
 
         console.info "ETA for fetching all songs: %c#{Math.round(eta/1000)}s", 'font-weight: bold'
         callback(,eta)
@@ -266,7 +266,7 @@ export
         # get list of all playlists
         # if already cached, this will be synchroneous
 
-        (err, playlistsArr) <-! exporter.fetchPlaylistsList
+        (err, playlistsArr) <-! pusher.fetchPlaylistsList
         return callback?(err) if err
 
         if typeof etaCallback == \function
@@ -281,7 +281,7 @@ export
             var etaTimeout
             updateETA = !->
                 clearTimeout etaTimeout
-                etaCallback(,Math.round remainingPages*exporter.avgPageFetch/1000ms_to_s)
+                etaCallback(,Math.round remainingPages*pusher.avgPageFetch/1000ms_to_s)
                 etaTimeout := setTimeout updateETA, 1_000ms
 
         # asynchroneously load all playlists and add them to zip
@@ -301,7 +301,7 @@ export
 
                 # load next playlist, if any
                 if pl
-                    exporter.fetchPlaylist pl, fetchNextPlaylist, updateETA && (page) !->
+                    pusher.fetchPlaylist pl, fetchNextPlaylist, updateETA && (page) !->
                         # eta update
                         remainingPages--
                         updateETA!
@@ -319,23 +319,23 @@ export
             callback?(,res)
 
     downloadPlaylist: (playlist, callback) !->
-        (err, pl) <-! exporter.fetchPlaylist(playlist)
+        (err, pl) <-! pusher.fetchPlaylist(playlist)
         return callback?(err) if err
 
         # make sure Import/Export Dialog is displayed
         $ ".play-song-link, .sidebar .import-playlist" .click!
 
         json = JSON.stringify(pl.data)
-        if exporter.browserIsSafari # show in text area
-            exporter.$data.val json
-            exporter.$name.text "#{pl.name}.json"
+        if pusher.browserIsSafari # show in text area
+            pusher.$data.val json
+            pusher.$name.text "#{pl.name}.json"
         else # download as file (worst case: open it in a new tab/window)
             saveTextAs json, "#{pl.name}.json"
         callback?(, pl)
 
     downloadZip: (callback, etaCallback) !->
         # fetch all songs
-        (err, playlists) <-! exporter.fetchAllPlaylists _, etaCallback
+        (err, playlists) <-! pusher.fetchAllPlaylists _, etaCallback
         return callback?(err) if err
 
         # create ZIP file
@@ -370,7 +370,7 @@ export
             optSongs = null
 
         # clear playlists-list cache (because we're adding a playlist now, duh)
-        delete exporter._playlistsArr
+        delete pusher._playlistsArr
 
         # create playlist
         new Dubtrack.Model.Playlist(name: name)
@@ -379,7 +379,7 @@ export
                 # add playlist locally (might not always trigger a redraw)
                 Dubtrack.user.playlist.add pl
                 if optSongs
-                    exporter.importSongs pl.id, optSongs, callback, ..
+                    pusher.importSongs pl.id, optSongs, callback, ..
                 else
                     callback?(,pl)
     importSongs: (playlistID, songsArray, callback, _internal_pl) !->
@@ -414,4 +414,4 @@ export
 
     handleInputFiles: handleInputFiles
 
-export close = exporter.noConflict
+export close = pusher.noConflict

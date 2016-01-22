@@ -62,7 +62,7 @@
 	 */
 	var ref$, aux, $css;
 	try {
-	  if ((ref$ = window.exporter) != null) {
+	  if ((ref$ = window.pusher) != null) {
 	    if (typeof ref$.noConflict == 'function') {
 	      ref$.noConflict();
 	    }
@@ -71,10 +71,10 @@
 	aux = __webpack_require__(1);
 	aux.getScript('FileSaver', 'saveAs', "https://cdn.rawgit.com/koffsyrup/FileSaver.js/master/FileSaver.js");
 	$('#jtb-css').remove();
-	$css = $("<link rel=stylesheet id=jtb-css href='https://cdn.rawgit.com/JTBrinkmann/dubtrack-playlist-exporter/master/styles.css'>").appendTo('head');
+	$css = $("<link rel=stylesheet id=jtb-css href='https://cdn.rawgit.com/JTBrinkmann/dubtrack-playlist-pusher/master/styles.css'>").appendTo('head');
 	$('.play-song-link').click();
-	window.exporter = __webpack_require__(2);
-	if (window.exporter.browserSupportsZip) {
+	window.pusher = __webpack_require__(2);
+	if (window.pusher.browserSupportsZip) {
 	  aux.getScript('JSZip', 'JSZip', "https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js");
 	}
 	Dubtrack.app.loadUserPlaylists(function(){
@@ -138,7 +138,7 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, PLAYLIST_LIST_RESET_TIMEOUT, browserIsSafari, ref$, ref1$, exporter, ref2$, close, out$ = typeof exports != 'undefined' && exports || this;
+	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, PLAYLIST_LIST_RESET_TIMEOUT, browserIsSafari, ref$, ref1$, pusher, ref2$, close, out$ = typeof exports != 'undefined' && exports || this;
 	aux = __webpack_require__(1);
 	handleInputFiles = __webpack_require__(3).handleInputFiles;
 	MAX_PAGE_SIZE = 20;
@@ -146,7 +146,7 @@
 	PLAYLIST_LOADED_RESET_TIMEOUT = 2 * 60000;
 	PLAYLIST_LIST_RESET_TIMEOUT = 2 * 60000;
 	browserIsSafari = ((ref$ = navigator.vendor) != null ? ref$.indexOf('Apple') : void 8) !== -1 && !((ref1$ = navigator.userAgent) != null && ref1$.indexOf('CriOS')) !== -1;
-	exporter = module.exports;
+	pusher = module.exports;
 	ref2$ = out$;
 	ref2$._debug = {};
 	ref2$.aux = aux;
@@ -163,16 +163,16 @@
 	ref2$.setWorking = function(val){
 	  var ref$;
 	  val = !!val;
-	  exporter.working = val;
-	  if ((ref$ = exporter.$browser) != null) {
+	  pusher.working = val;
+	  if ((ref$ = pusher.$browser) != null) {
 	    ref$.toggleClass('jtb-working', val);
 	  }
 	};
 	ref2$.noConflict = function(){
 	  $('.jtb').remove();
-	  exporter.$browser.removeClass("jtb-dropping jtb-importing jtb-working").off('dragover dragend dragenter dragleave drop');
-	  $('.close-import-playlist').off('click', exporter._closeBtnClick);
-	  $(".sidebar .import-playlist").contents()[1].textContent = exporter._importBtnText;
+	  pusher.$browser.removeClass("jtb-dropping jtb-importing jtb-working").off('dragover dragend dragenter dragleave drop');
+	  $('.close-import-playlist').off('click', pusher._closeBtnClick);
+	  $(".sidebar .import-playlist").contents()[1].textContent = pusher._importBtnText;
 	  Dubtrack.View.ImportPlaylistBrowser.prototype.openView = Dubtrack.View.ImportPlaylistBrowser.prototype.openView_;
 	  delete Dubtrack.View.ImportPlaylistBrowser.prototype.openView_;
 	  Dubtrack.View.ImportPlaylistBrowser.prototype.closeView = Dubtrack.View.ImportPlaylistBrowser.prototype.closeView_;
@@ -182,9 +182,9 @@
 	};
 	ref2$.fetchPlaylistsList = function(callback){
 	  var pls, i, playlistsArr, res$;
-	  if (exporter._playlistsArr) {
+	  if (pusher._playlistsArr) {
 	    if (typeof callback == 'function') {
-	      callback(void 8, exporter._playlistsArr);
+	      callback(void 8, pusher._playlistsArr);
 	    }
 	  } else if (Dubtrack.app.browserView) {
 	    pls = Dubtrack.app.browserView.model.models;
@@ -212,9 +212,9 @@
 	          return 0;
 	        }
 	      });
-	      exporter._playlistsArr = playlistsArr;
+	      pusher._playlistsArr = playlistsArr;
 	      setTimeout(function(){
-	        delete exporter._playlistsArr;
+	        delete pusher._playlistsArr;
 	      }, PLAYLIST_LIST_RESET_TIMEOUT);
 	      if (typeof callback == 'function') {
 	        callback(void 8, playlistsArr);
@@ -240,7 +240,7 @@
 	      callback(new TypeError("no valid playlist specified"));
 	      return;
 	    }
-	    exporter.fetchPlaylistsList(function(err, playlistsArr){
+	    pusher.fetchPlaylistsList(function(err, playlistsArr){
 	      var i$, len$, pl;
 	      if (err) {
 	        return callback(err);
@@ -258,7 +258,7 @@
 	ref2$.fetchPlaylist = function(playlist, callback, etaCallback){
 	  var d;
 	  d = Date.now();
-	  exporter.getPlaylist(playlist, function(err, pl){
+	  pusher.getPlaylist(playlist, function(err, pl){
 	    var totalItems, $playlist, pages;
 	    if (err) {
 	      return typeof callback == 'function' ? callback(err) : void 8;
@@ -273,8 +273,8 @@
 	    if (totalItems === 0) {
 	      console.log("skipping empty playlist '" + pl.name + "'");
 	    }
-	    $playlist = $(".playlist-" + pl._id).append(exporter.$loadingIcon);
-	    exporter._debug.playlists = {};
+	    $playlist = $(".playlist-" + pl._id).append(pusher.$loadingIcon);
+	    pusher._debug.playlists = {};
 	    pages = Math.ceil(totalItems / MAX_PAGE_SIZE);
 	    $.Deferred(function(defFetchSongs){
 	      var songs, offset, page, fetchPage;
@@ -315,15 +315,15 @@
 	      })();
 	    }).then(function(songs){
 	      $playlist.addClass('jtb-playlist-loaded');
-	      exporter.$loadingIcon.remove();
-	      clearTimeout(exporter.playlistLoadedResetTimeouts[pl._id]);
-	      exporter.playlistLoadedResetTimeouts[pl._id] = setTimeout(function(){
+	      pusher.$loadingIcon.remove();
+	      clearTimeout(pusher.playlistLoadedResetTimeouts[pl._id]);
+	      pusher.playlistLoadedResetTimeouts[pl._id] = setTimeout(function(){
 	        $playlist.removeClass('jtb-playlist-loaded');
 	      }, PLAYLIST_LOADED_RESET_TIMEOUT);
 	      if (pages !== 0) {
-	        exporter.avgPageFetch *= exporter.avgPageFetchSamples;
-	        exporter.avgPageFetch += (Date.now() - d) / pages;
-	        exporter.avgPageFetch /= ++exporter.avgPageFetchSamples;
+	        pusher.avgPageFetch *= pusher.avgPageFetchSamples;
+	        pusher.avgPageFetch += (Date.now() - d) / pages;
+	        pusher.avgPageFetch /= ++pusher.avgPageFetchSamples;
 	      }
 	      if (typeof callback == 'function') {
 	        callback(null, {
@@ -346,7 +346,7 @@
 	  });
 	};
 	ref2$.etaFetchAllPlaylists = function(callback){
-	  exporter.fetchPlaylistsList(function(err, playlistsArr){
+	  pusher.fetchPlaylistsList(function(err, playlistsArr){
 	    var eta, i$, len$, pl;
 	    if (err) {
 	      return typeof callback == 'function' ? callback(err) : void 8;
@@ -354,8 +354,8 @@
 	    eta = 0;
 	    for (i$ = 0, len$ = playlistsArr.length; i$ < len$; ++i$) {
 	      pl = playlistsArr[i$];
-	      if (pl.totalItems && !(pl._id in exporter.playlists)) {
-	        eta += exporter.avgPageFetch * Math.ceil(pl.totalItems / MAX_PAGE_SIZE);
+	      if (pl.totalItems && !(pl._id in pusher.playlists)) {
+	        eta += pusher.avgPageFetch * Math.ceil(pl.totalItems / MAX_PAGE_SIZE);
 	      }
 	    }
 	    console.info("ETA for fetching all songs: %c" + Math.round(eta / 1000) + "s", 'font-weight: bold');
@@ -363,7 +363,7 @@
 	  });
 	};
 	ref2$.fetchAllPlaylists = function(callback, etaCallback){
-	  exporter.fetchPlaylistsList(function(err, playlistsArr){
+	  pusher.fetchPlaylistsList(function(err, playlistsArr){
 	    var remainingPages, i$, len$, pl, etaTimeout, updateETA;
 	    if (err) {
 	      return typeof callback == 'function' ? callback(err) : void 8;
@@ -378,7 +378,7 @@
 	      }
 	      updateETA = function(){
 	        clearTimeout(etaTimeout);
-	        etaCallback(void 8, Math.round(remainingPages * exporter.avgPageFetch / 1000));
+	        etaCallback(void 8, Math.round(remainingPages * pusher.avgPageFetch / 1000));
 	        etaTimeout = setTimeout(updateETA, 1000);
 	      };
 	    }
@@ -402,7 +402,7 @@
 	          updateETA();
 	        }
 	        if (pl) {
-	          exporter.fetchPlaylist(pl, fetchNextPlaylist, updateETA && function(page){
+	          pusher.fetchPlaylist(pl, fetchNextPlaylist, updateETA && function(page){
 	            remainingPages--;
 	            updateETA();
 	          });
@@ -424,16 +424,16 @@
 	  });
 	};
 	ref2$.downloadPlaylist = function(playlist, callback){
-	  exporter.fetchPlaylist(playlist, function(err, pl){
+	  pusher.fetchPlaylist(playlist, function(err, pl){
 	    var json;
 	    if (err) {
 	      return typeof callback == 'function' ? callback(err) : void 8;
 	    }
 	    $(".play-song-link, .sidebar .import-playlist").click();
 	    json = JSON.stringify(pl.data);
-	    if (exporter.browserIsSafari) {
-	      exporter.$data.val(json);
-	      exporter.$name.text(pl.name + ".json");
+	    if (pusher.browserIsSafari) {
+	      pusher.$data.val(json);
+	      pusher.$name.text(pl.name + ".json");
 	    } else {
 	      saveTextAs(json, pl.name + ".json");
 	    }
@@ -443,7 +443,7 @@
 	  });
 	};
 	ref2$.downloadZip = function(callback, etaCallback){
-	  exporter.fetchAllPlaylists(function(err, playlists){
+	  pusher.fetchAllPlaylists(function(err, playlists){
 	    var zip, i$, pl, o, filename, date;
 	    if (err) {
 	      return typeof callback == 'function' ? callback(err) : void 8;
@@ -474,7 +474,7 @@
 	    callback = optSongs;
 	    optSongs = null;
 	  }
-	  delete exporter._playlistsArr;
+	  delete pusher._playlistsArr;
 	  x$ = new Dubtrack.Model.Playlist({
 	    name: name
 	  });
@@ -483,7 +483,7 @@
 	    success: function(pl){
 	      Dubtrack.user.playlist.add(pl);
 	      if (optSongs) {
-	        exporter.importSongs(pl.id, optSongs, callback, x$);
+	        pusher.importSongs(pl.id, optSongs, callback, x$);
 	      } else {
 	        if (typeof callback == 'function') {
 	          callback(void 8, pl);
@@ -525,7 +525,7 @@
 	  } importSong();
 	};
 	ref2$.handleInputFiles = handleInputFiles;
-	out$.close = close = exporter.noConflict;
+	out$.close = close = pusher.noConflict;
 
 /***/ },
 /* 3 */
@@ -535,7 +535,7 @@
 	$filelist = __webpack_require__(4).$el;
 	out$.handleInputFiles = handleInputFiles = function(inputfiles){
 	  var $playlistSelect, i$, ref$, len$, pl, autoScrolling, scrollTo;
-	  exporter._debug.inputfiles = inputfiles;
+	  pusher._debug.inputfiles = inputfiles;
 	  $(".play-song-link, .sidebar .import-playlist").click();
 	  $playlistSelect = $("<select class=jtb-playlist-select>").append($("<option disabled>select destination</option>")).append($("<option value=new>create new playlist</option>")).append($("<option disabled>------------------</option>"));
 	  for (i$ = 0, len$ = (ref$ = Dubtrack.app.browserView.model.models).length; i$ < len$; ++i$) {
@@ -543,7 +543,7 @@
 	    $('<option>').text(pl.attributes.name).val(pl.id).appendTo($playlistSelect);
 	  }
 	  $filelist.show();
-	  exporter.$importHint.show();
+	  pusher.$importHint.show();
 	  autoScrolling = 0;
 	  scrollTo = $filelist[0].scrollHeight;
 	  handleFiles($filelist, inputfiles);
@@ -742,7 +742,7 @@
 	  }
 	}).on('click', '.jtb-import-pl-btn', function(){
 	  var $file, $sel, plID, file, songs, name, $input, nameInput;
-	  if (exporter.working) {
+	  if (pusher.working) {
 	    return;
 	  }
 	  $file = $(this).closest('.jtb-file');
@@ -755,7 +755,7 @@
 	  } else if (plID === 'new-suggested') {
 	    name = file.name.replace(/\.json(?:\.txt)?$|\.txt$/, '');
 	    startWorking();
-	    exporter.createPlaylist(name, songs, callback);
+	    pusher.createPlaylist(name, songs, callback);
 	  } else if (plID === 'new') {
 	    $input = $file.find('.jtb-name-input');
 	    nameInput = $input.val();
@@ -768,20 +768,20 @@
 	    } else {
 	      console.log("create new playlist");
 	      startWorking();
-	      exporter.createPlaylist(nameInput, songs, callback);
+	      pusher.createPlaylist(nameInput, songs, callback);
 	    }
 	  } else {
 	    console.log("import to playlist " + plID);
 	    startWorking();
-	    exporter.importSongs(plID, songs, callback);
+	    pusher.importSongs(plID, songs, callback);
 	  }
 	  function startWorking(){
-	    $file.find('.jtb-file-actions').slideUp().before(exporter.$loadingIcon);
-	    exporter.setWorking(true);
+	    $file.find('.jtb-file-actions').slideUp().before(pusher.$loadingIcon);
+	    pusher.setWorking(true);
 	  }
 	  function callback(){
-	    exporter.setWorking(false);
-	    exporter.$loadingIcon.remove();
+	    pusher.setWorking(false);
+	    pusher.$loadingIcon.remove();
 	    $file.addClass('jtb-file-imported');
 	  }
 	}).on('click', '.jtb-abort-btn', function(){
@@ -798,21 +798,21 @@
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var exporter, $filelist;
-	exporter = __webpack_require__(2);
+	var pusher, $filelist;
+	pusher = __webpack_require__(2);
 	$filelist = __webpack_require__(4).$el;
 	requestAnimationFrame(function(){
 	  var $browser, $diag, x$, $fileInput, isFileSelecting, ref$, dragTarget;
-	  exporter.$browser = $browser = $('#browser');
-	  exporter.$diag = $diag = $('#import-playlist-container');
+	  pusher.$browser = $browser = $('#browser');
+	  pusher.$diag = $diag = $('#import-playlist-container');
 	  x$ = $(".sidebar .import-playlist").contents()[1];
-	  exporter._importBtnText = x$.textContent;
+	  pusher._importBtnText = x$.textContent;
 	  x$.textContent = " Import/Export playlists";
 	  $filelist.hide().appendTo($diag);
-	  exporter.$importHint = $("<div class='jtb jtb-note' style='display:none'>note: Freshly imported playlists might not show up in the playlist-list,\ or show up with with a wrong number of songs.\ Refreshing the page fixes this (sorry)</div>").appendTo($diag);
+	  pusher.$importHint = $("<div class='jtb jtb-note' style='display:none'>note: Freshly imported playlists might not show up in the playlist-list,\ or show up with with a wrong number of songs.\ Refreshing the page fixes this (sorry)</div>").appendTo($diag);
 	  $fileInput = $("<input class=jtb type='file' multiple>").hide().appendTo(document.body).on('change', function(){
 	    console.log("file selector onchange");
-	    exporter.handleInputFiles(this.files);
+	    pusher.handleInputFiles(this.files);
 	  });
 	  isFileSelecting = false;
 	  $("<button class='jtb jtb-import-btn'>Plug.dj / Dubtrack</button>").appendTo($diag.find('.playlist-type-select')).on('click', function(){
@@ -825,20 +825,20 @@
 	      });
 	    }
 	  });
-	  if (exporter.browserSupportsDragnDrop) {
+	  if (pusher.browserSupportsDragnDrop) {
 	    $diag.find('.playlist-type-select').append($("<div class='jtb jtb-note'>or drag'n'drop the zip/JSON file here.</div>"));
 	  }
 	  $("<h3 class='jtb jtb-headline'>Export Playlists</h3>").appendTo($diag);
 	  $("<button class='jtb jtb-export-btn jtb-btn'>Download All</button>").appendTo($diag).on('click', function(){
 	    var this$ = this;
-	    if (exporter.working) {
+	    if (pusher.working) {
 	      return;
 	    }
 	    this.textContent = "Downloading…";
 	    clearTimeout(this.dataset.timeout);
-	    exporter.setWorking(true);
-	    exporter.downloadZip(function(err, playlists){
-	      exporter.setWorking(false);
+	    pusher.setWorking(true);
+	    pusher.downloadZip(function(err, playlists){
+	      pusher.setWorking(false);
 	      if (err) {
 	        console.error(err);
 	        $("<div class='jtb jtb-error'>").text(err.message).insertAfter(this$);
@@ -860,11 +860,11 @@
 	        this$.textContent = "Downloading… " + eta + "s";
 	      }
 	    });
-	  }).toggle(exporter.browserSupportsZip);
+	  }).toggle(pusher.browserSupportsZip);
 	  $("<div class='jtb jtb-note'>or click the playlist names<br>to export them individually</div>").appendTo($diag);
-	  if (exporter.browserIsSafari) {
-	    exporter.$name = $("<b class=jtb>").appendTo($diag);
-	    exporter.$data = $("<textarea class=jtb>").css({
+	  if (pusher.browserIsSafari) {
+	    pusher.$name = $("<b class=jtb>").appendTo($diag);
+	    pusher.$data = $("<textarea class=jtb>").css({
 	      maxHeight: '5em'
 	    }).attr('placeholder', "note: because the Safari developers explicitly don't\ want to let you download files that were generated on-the-fly,\ you <b>cannot</b> download playlists as files on Safari.\ Instead, click on a playlist (in the left) and then copy the text\ from here and save it in a file manually… or just use a better browser").on('focus', function(it){
 	      return it.select();
@@ -872,10 +872,10 @@
 	  }
 	  (ref$ = Dubtrack.View.ImportPlaylistBrowser.prototype).openView_ || (ref$.openView_ = Dubtrack.View.ImportPlaylistBrowser.prototype.openView);
 	  Dubtrack.View.ImportPlaylistBrowser.prototype.openView = function(){
-	    if (!exporter.isImporting) {
+	    if (!pusher.isImporting) {
 	      console.log("[ImportPlaylistBrowser] openView");
 	      $browser.addClass('jtb-importing');
-	      exporter.isImporting = true;
+	      pusher.isImporting = true;
 	      this.openView_.apply(this, arguments);
 	    }
 	  };
@@ -883,23 +883,23 @@
 	  Dubtrack.View.ImportPlaylistBrowser.prototype.closeView = function(){
 	    console.log("[ImportPlaylistBrowser] closeView");
 	    $browser.removeClass('jtb-importing');
-	    exporter.isImporting = false;
+	    pusher.isImporting = false;
 	    this.closeView_.apply(this, arguments);
 	  };
-	  $('.close-import-playlist').off('click', exporter._closeBtnClick).on('click', exporter._closeBtnClick = function(){
+	  $('.close-import-playlist').off('click', pusher._closeBtnClick).on('click', pusher._closeBtnClick = function(){
 	    $browser.removeClass('jtb-importing');
-	    exporter.isImporting = false;
+	    pusher.isImporting = false;
 	  });
 	  Dubtrack.View.playlistItem.prototype.viewDetails_ = Dubtrack.View.playlistItem.prototype.viewDetails;
 	  Dubtrack.View.playlistItem.prototype.viewDetails = function(){
 	    var plID;
-	    console.log("[viewDetails]", exporter.isImporting, this.model.get('_id'));
-	    if (exporter.isImporting) {
+	    console.log("[viewDetails]", pusher.isImporting, this.model.get('_id'));
+	    if (pusher.isImporting) {
 	      plID = this.model.get('_id');
-	      if (!exporter.working) {
-	        exporter.setWorking(true);
-	        exporter.downloadPlaylist(plID, function(){
-	          exporter.setWorking(false);
+	      if (!pusher.working) {
+	        pusher.setWorking(true);
+	        pusher.downloadPlaylist(plID, function(){
+	          pusher.setWorking(false);
 	        });
 	      }
 	    } else {
@@ -923,8 +923,8 @@
 	      console.log("[click] pl not found");
 	    }
 	  });
-	  exporter.isImporting = $diag.css('display') !== 'none';
-	  $browser.toggleClass('jtb-importing', exporter.isImporting).on('dragover', function(e){
+	  pusher.isImporting = $diag.css('display') !== 'none';
+	  $browser.toggleClass('jtb-importing', pusher.isImporting).on('dragover', function(e){
 	    e.stopPropagation();
 	    e.preventDefault();
 	    $(".play-song-link, .sidebar .import-playlist").click();
@@ -952,7 +952,7 @@
 	    }
 	    e.stopPropagation();
 	    e.preventDefault();
-	    exporter.handleInputFiles(inputfiles);
+	    pusher.handleInputFiles(inputfiles);
 	  });
 	});
 

@@ -16,7 +16,7 @@
  */
 
 # close previous instance, if any
-try window.exporter?.noConflict?!
+try window.pusher?.noConflict?!
 
 require! {
     auxiliaries: 'aux'
@@ -29,17 +29,17 @@ aux.getScript \FileSaver, \saveAs, "https://cdn.rawgit.com/koffsyrup/FileSaver.j
 
 # add CSS
 $ \#jtb-css .remove!
-$css = $ "<link rel=stylesheet id=jtb-css href='https://cdn.rawgit.com/JTBrinkmann/dubtrack-playlist-exporter/master/styles.css'>"
+$css = $ "<link rel=stylesheet id=jtb-css href='https://cdn.rawgit.com/JTBrinkmann/dubtrack-playlist-pusher/master/styles.css'>"
     .appendTo \head
 
 # show playlist manager (for maximum fun)
 $ \.play-song-link .click!
 
 # load Playlist Pusher API
-window.exporter = require \api
+window.pusher = require \api
 
 # let JSZip load in the background, if downloading ZIPs is supported
-if window.exporter.browserSupportsZip
+if window.pusher.browserSupportsZip
     aux.getScript \JSZip, \JSZip, "https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js"
 
 

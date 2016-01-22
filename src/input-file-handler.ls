@@ -2,7 +2,7 @@ $filelist = require "importer-filelist" .$el
 
 export handleInputFiles = (inputfiles) !->
     # DEBUG
-    exporter._debug.inputfiles = inputfiles
+    pusher._debug.inputfiles = inputfiles
 
     # make sure Import/Export Dialog is displayed
     $ ".play-song-link, .sidebar .import-playlist" .click!
@@ -23,7 +23,7 @@ export handleInputFiles = (inputfiles) !->
 
     # show filelist, if not already visible
     $filelist .show!
-    exporter.$importHint .show!
+    pusher.$importHint .show!
 
     # set up autoscrolling
     autoScrolling = 0
