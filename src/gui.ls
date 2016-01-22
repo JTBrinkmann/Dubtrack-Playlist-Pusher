@@ -91,11 +91,10 @@ $ "<button class='jtb jtb-export-btn jtb-btn'>Download All</button>"
                 if err
                     console.error err
                 else
-                    if eta < 1
-                        eta = "<1"
+                    if eta >= 1
+                        @textContent = "Downloading… #{eta}s"
                     else
-                        eta = "ca. #eta"
-                    @textContent = "Downloading… #{eta}s"
+                        @textContent = "Downloading…"
 
     # we can't download the auto-generated zip on Safari and IE9-
     .toggle pusher.browserSupportsZip

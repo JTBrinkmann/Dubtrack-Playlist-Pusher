@@ -36,10 +36,9 @@ pusher.showSplitPlaylistGUI = (e) !->
         (err, eta) !->
             console.log "Splitting… #{eta}s", new Date()
             if eta >= 1
-                eta = "ca. #eta"
+                $btn.text "Splitting… #{eta}s"
             else
-                eta = "<1"
-            $btn.text "Splitting… #{eta}s"
+                $btn.text "Splitting…"
 
 pusher.splitPlaylist = (playlistid, limit, nameTemplate, callback, etaCallback) !->
     if not isFinite(limit) or limit < 1

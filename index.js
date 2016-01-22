@@ -1036,11 +1036,10 @@
 	  }, function(err, eta){
 	    console.log("Splitting… " + eta + "s", new Date());
 	    if (eta >= 1) {
-	      eta = "ca. " + eta;
+	      $btn.text("Splitting… " + eta + "s");
 	    } else {
-	      eta = "<1";
+	      $btn.text("Splitting…");
 	    }
-	    $btn.text("Splitting… " + eta + "s");
 	  });
 	};
 	pusher.splitPlaylist = function(playlistid, limit, nameTemplate, callback, etaCallback){
