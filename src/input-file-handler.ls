@@ -175,6 +175,8 @@ export handleInputFiles = (inputfiles) !->
                     else
                         if not name
                             name = file.name .replace /\.json(?:\.txt)?$|\.txt$/, ''
+                        file.suggestedName = name
+
                         # suggest creating a new playlist with the same name
                         $ "<option value=new-suggested>"
                             .text "create \"#name\""

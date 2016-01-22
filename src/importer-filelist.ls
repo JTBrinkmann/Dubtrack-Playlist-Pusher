@@ -28,10 +28,9 @@ export $el = do
                 alert "please select a playlist to import to"
 
             else if plID == \new-suggested
-                name = file.name .replace /\.json(?:\.txt)?$|\.txt$/, ''
                 startWorking!
                 pusher.createPlaylist do
-                    name
+                    file.suggestedName
                     songs
                     callback
 

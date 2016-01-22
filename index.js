@@ -701,6 +701,7 @@
 	            if (!name) {
 	              name = file.name.replace(/\.json(?:\.txt)?$|\.txt$/, '');
 	            }
+	            file.suggestedName = name;
 	            $("<option value=new-suggested>").text("create \"" + name + "\"").insertAfter($sel.find("option:eq(1)"));
 	            $sel.val('new-suggested');
 	          }
@@ -750,7 +751,7 @@
 	    console.log("selected playlist " + plID + " (" + $(this).text() + ")");
 	  }
 	}).on('click', '.jtb-import-pl-btn', function(){
-	  var $file, $sel, plID, file, songs, name, $input, nameInput;
+	  var $file, $sel, plID, file, songs, $input, nameInput;
 	  if (pusher.working) {
 	    return;
 	  }
@@ -762,9 +763,8 @@
 	  if (!plID) {
 	    alert("please select a playlist to import to");
 	  } else if (plID === 'new-suggested') {
-	    name = file.name.replace(/\.json(?:\.txt)?$|\.txt$/, '');
 	    startWorking();
-	    pusher.createPlaylist(name, songs, callback);
+	    pusher.createPlaylist(file.suggestedName, songs, callback);
 	  } else if (plID === 'new') {
 	    $input = $file.find('.jtb-name-input');
 	    nameInput = $input.val();
