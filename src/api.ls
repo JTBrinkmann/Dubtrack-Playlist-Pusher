@@ -388,7 +388,7 @@ export
             ..parse = Dubtrack.helpers.parse
             ..save {}, success: (pl) !->
                 # add playlist locally (might not always trigger a redraw)
-                setTimeout (!-> Dubtrack.user.playlist.add pl), 2_000ms
+                setTimeout (!-> Dubtrack.user.playlist.add pl), 5_000ms
                 if optSongs
                     pusher.importSongs pl.id, optSongs, callback, etaCallback, ..
                 else

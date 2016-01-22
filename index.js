@@ -498,7 +498,7 @@
 	    success: function(pl){
 	      setTimeout(function(){
 	        Dubtrack.user.playlist.add(pl);
-	      }, 2000);
+	      }, 5000);
 	      if (optSongs) {
 	        pusher.importSongs(pl.id, optSongs, callback, etaCallback, x$);
 	      } else {
@@ -1017,7 +1017,7 @@
 	  $btn.text("Split Size: " + newSize);
 	};
 	pusher.showSplitPlaylistGUI = function(e){
-	  var $btn, size, playlistid;
+	  var $btn, size, playlistid, name;
 	  if (e != null) {
 	    e.preventDefault();
 	  }
@@ -1028,29 +1028,33 @@
 	    return;
 	  }
 	  playlistid = this.model.id;
-	  pusher.splitPlaylist(playlistid, size, this.model.get('name') + " (%d)", function(err){
-	    $btn.text("Split Size: " + size);
-	    if (err) {
-	      aux.errorHandler(err);
-	    }
-	  }, function(err, eta){
-	    console.log("Splitting… " + eta + "s", new Date());
-	    if (eta >= 1) {
-	      $btn.text("Splitting… " + eta + "s");
-	    } else {
-	      $btn.text("Splitting…");
-	    }
-	  });
+	  name = this.model.get('name');
+	  if (pusher.working) {
+	    aux.errorHandler(new TypeError("already splitting"));
+	  } else {
+	    pusher.setWorking(true);
+	    pusher.splitPlaylist(playlistid, size, name + " (%d)", function(err){
+	      pusher.setWorking(false);
+	      $btn.text("Split Size: " + size);
+	      if (err) {
+	        aux.errorHandler(err);
+	      } else {
+	        alert("done splitting \"" + name + "\"");
+	      }
+	    }, function(err, eta){
+	      if (eta >= 1) {
+	        $btn.text("Splitting… " + eta + "s");
+	      } else {
+	        $btn.text("Splitting…");
+	      }
+	    });
+	  }
 	};
 	pusher.splitPlaylist = function(playlistid, limit, nameTemplate, callback, etaCallback){
 	  var title, name;
 	  if (!isFinite(limit) || limit < 1) {
 	    return typeof callback == 'function' ? callback(new TypeError("limit too small")) : void 8;
 	  }
-	  if (pusher.splitting) {
-	    return typeof callback == 'function' ? callback(new TypeError("already splitting")) : void 8;
-	  }
-	  pusher.splitting = true;
 	  if (typeof callback !== 'function') {
 	    callback = null;
 	  }
