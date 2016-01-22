@@ -74,9 +74,11 @@ export
 
     #== EXPORTER ==
     fetchPlaylistsList: (callback) !->
+        return if typeof callback != \function
+
         if pusher._playlistsArr
             # we already have the playlistsArr cached, so we'll just serve that
-            callback?(,pusher._playlistsArr)
+            callback(,pusher._playlistsArr)
 
         else if Dubtrack.app.browserView
             # playlist manager already opened => playlists are already cached
@@ -86,7 +88,7 @@ export
             playlistsArr = [pls[i].attributes while i--]
 
             # call callback
-            callback?(,playlistsArr)
+            callback(,playlistsArr)
 
         else
             # we need to fetch the playlist list manually
@@ -111,7 +113,7 @@ export
                 PLAYLIST_LIST_RESET_TIMEOUT
 
             # call callback
-            callback?(,playlistsArr)
+            callback(,playlistsArr)
 
     getPlaylist: (playlist, callback) !->
         # turns a playlistID or playlist object into
@@ -300,10 +302,10 @@ export
 
                 # load next playlist, if any
                 if pl
-                    pusher.fetchPlaylist pl, fetchNextPlaylist, updateETA && (page) !->
-                        # eta update
-                        remainingPages--
-                        updateETA!
+                    pusher.fetchPlaylist pl, fetchNextPlaylist,
+                        updateETA && (page) !-> # eta update
+                            remainingPages--
+                            updateETA!
                 else
                     defFetchPlaylists.resolve res
 
@@ -399,7 +401,7 @@ export
                         Dubtrack.config.urls.playlistSong.split \:id .join playlistID
                     Dubtrack.helpers.sendRequest do
                         url
-                        fkid: song.cid,
+                        fkid: song.cid
                         type: FORMATS[song.format]
                         \post
                         importSong

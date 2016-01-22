@@ -197,10 +197,11 @@
 	};
 	ref$.fetchPlaylistsList = function(callback){
 	  var pls, i, playlistsArr, res$;
+	  if (typeof callback !== 'function') {
+	    return;
+	  }
 	  if (pusher._playlistsArr) {
-	    if (typeof callback == 'function') {
-	      callback(void 8, pusher._playlistsArr);
-	    }
+	    callback(void 8, pusher._playlistsArr);
 	  } else if (Dubtrack.app.browserView) {
 	    pls = Dubtrack.app.browserView.model.models;
 	    i = pls.length;
@@ -209,9 +210,7 @@
 	      res$.push(pls[i].attributes);
 	    }
 	    playlistsArr = res$;
-	    if (typeof callback == 'function') {
-	      callback(void 8, playlistsArr);
-	    }
+	    callback(void 8, playlistsArr);
 	  } else {
 	    aux.fetch("playlists", "https://api.dubtrack.fm/playlist", function(playlistsArr){
 	      if (!('length' in playlistsArr)) {
@@ -231,9 +230,7 @@
 	      setTimeout(function(){
 	        delete pusher._playlistsArr;
 	      }, PLAYLIST_LIST_RESET_TIMEOUT);
-	      if (typeof callback == 'function') {
-	        callback(void 8, playlistsArr);
-	      }
+	      callback(void 8, playlistsArr);
 	    });
 	  }
 	};
