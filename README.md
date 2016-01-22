@@ -27,7 +27,7 @@ Importing playlists can take anywhere between 10-30 seconds per 100 songs in the
 **NOTE:** Freshly imported playlists might not show up in the playlist-list, or show up with with a wrong number of songs. Refreshing the page fixes this (sorry).
 
 ### to split playlists
-Open a playlist and click, select your desired playlist-size by clicking the "Split Size" button. **If you don't see the two "split" buttons, try changing to another playlist and back.** Click the "Split Playlist" button to start splitting. **This WILL take a while!** As mentioned with the importing, splitting playlists can anywhere between 10-30 seconds per 100 songs in the playlist (because Dubtrack doesn't support moving songs in bulk).
+Open a playlist and click, select your desired playlist-size by clicking the "Split Size" button. **If you don't see the two "split" buttons, try changing to another playlist and back.** Click the "Split Playlist" button to start splitting. **This WILL take a while!** As mentioned with the importing, splitting playlists can take anywhere between 10-30 seconds per 100 songs in the playlist (because Dubtrack doesn't support moving songs in bulk).
 
 ![screenshot of the split buttons](https://i.imgur.com/JwyNYKU.png)
 
