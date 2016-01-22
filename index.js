@@ -1017,7 +1017,7 @@
 	  $btn.text("Split Size: " + newSize);
 	};
 	pusher.showSplitPlaylistGUI = function(e){
-	  var $btn, size, playlistid, name;
+	  var $btn, size, playlistid, name, title;
 	  if (e != null) {
 	    e.preventDefault();
 	  }
@@ -1032,6 +1032,8 @@
 	  if (pusher.working) {
 	    aux.errorHandler(new TypeError("already splitting"));
 	  } else {
+	    title = "[splitPlaylist] done!";
+	    console.time(title);
 	    pusher.setWorking(true);
 	    pusher.splitPlaylist(playlistid, size, name + " (%d)", function(err){
 	      var ref$, ref1$;
@@ -1045,6 +1047,7 @@
 	      Dubtrack.app.navigate("/browser/queue/", {
 	        trigger: false
 	      });
+	      console.timeEnd(title);
 	      if (err) {
 	        aux.errorHandler(err);
 	      } else {
@@ -1060,38 +1063,28 @@
 	  }
 	};
 	pusher.splitPlaylist = function(playlistid, limit, nameTemplate, callback, etaCallback){
-	  var title, name;
+	  var name;
 	  if (!isFinite(limit) || limit < 1) {
 	    return typeof callback == 'function' ? callback(new TypeError("limit too small")) : void 8;
 	  }
 	  if (typeof callback !== 'function') {
 	    callback = null;
 	  }
-	  title = "[splitPlaylist] done!";
-	  console.time(title);
 	  name = nameTemplate.split("%d");
 	  pusher.fetchPlaylistsList(function(err, playlistsArr){
 	    if (err) {
-	      if (typeof callback == 'function') {
-	        callback(err);
-	      }
-	      console.timeEnd(title);
-	      return;
+	      return typeof callback == 'function' ? callback(err) : void 8;
 	    }
 	    pusher.fetchPlaylist(playlistid, function(err2, data){
 	      var songs, remainingSongs, etaTimeout, updateETA, totalPlaylists, plNames, res$, i$, ref$, len$, pl, i, abort, res;
 	      if (err) {
-	        if (typeof callback == 'function') {
-	          callback(err);
-	        }
-	        console.timeEnd(title);
-	        return;
+	        return typeof callback == 'function' ? callback(err) : void 8;
 	      }
 	      songs = data.data.data;
 	      if (!songs.length) {
-	        callback(new Error("Playlist '" + playlistid + "' appears to be empty"));
+	        return callback(new Error("Playlist '" + playlistid + "' appears to be empty"));
 	      } else if (songs.length <= limit) {
-	        callback(new Error("Hold on there sunny, this playlist is already small enough! (≤ " + limit + " songs)"));
+	        return callback(new Error("Hold on there sunny, this playlist is already small enough! (≤ " + limit + " songs)"));
 	      }
 	      if (typeof etaCallback === 'function') {
 	        remainingSongs = songs.length;
@@ -1131,7 +1124,6 @@
 	          if (typeof callback == 'function') {
 	            callback(err);
 	          }
-	          console.timeEnd(title);
 	        } else if (i < totalPlaylists) {
 	          pusher.createPlaylist(name.join(i + 1), songs.slice(i * limit, (++i) * limit), createNextPlaylist, updateETA && function(){
 	            remainingSongs--;
@@ -1140,7 +1132,6 @@
 	        } else {
 	          clearTimeout(etaTimeout);
 	          pusher.removePlaylist(playlistid, function(){
-	            console.timeEnd(title);
 	            if (callback) {
 	              callback(void 8, true);
 	            }

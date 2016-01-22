@@ -33,6 +33,8 @@ pusher.showSplitPlaylistGUI = (e) !->
     if pusher.working
         aux.errorHandler new TypeError("already splitting")
     else
+        title = "[splitPlaylist] done!"
+        console.time title
         pusher.setWorking true
         pusher.splitPlaylist playlistid, size, "#name (%d)",
             (err) !->
@@ -47,6 +49,7 @@ pusher.showSplitPlaylistGUI = (e) !->
                 Dubtrack.app.navigate "/browser/queue/", {-trigger}
 
                 # show error / success message
+                console.timeEnd title
                 if err
                     aux.errorHandler err
                 else
@@ -68,30 +71,20 @@ pusher.splitPlaylist = (playlistid, limit, nameTemplate, callback, etaCallback) 
     if typeof callback != \function
         callback = null
 
-    title = "[splitPlaylist] done!"
-    console.time title
-
     # prepare name
     name = nameTemplate.split "%d"
 
     # fetch playlists list and all songs from playlist we're going to split
     (err, playlistsArr) <-! pusher.fetchPlaylistsList
-    if err
-        callback?(err)
-        console.timeEnd title
-        return
-
+    return callback?(err) if err
     (err2, data) <-! pusher.fetchPlaylist playlistid
-    if err
-        callback?(err)
-        console.timeEnd title
-        return
+    return callback?(err) if err
 
     songs = data.data.data
     if not songs.length # note: we're not using totalItems because it's unreliable
-        callback new Error "Playlist '#playlistid' appears to be empty"
+        return callback new Error "Playlist '#playlistid' appears to be empty"
     else if songs.length <= limit
-        callback new Error "Hold on there sunny, this playlist is already small enough! (≤ #limit songs)"
+        return callback new Error "Hold on there sunny, this playlist is already small enough! (≤ #limit songs)"
 
     # prepare eta
     if typeof etaCallback == \function
@@ -134,7 +127,6 @@ pusher.splitPlaylist = (playlistid, limit, nameTemplate, callback, etaCallback) 
 
         if err # an error occured
             callback?(err)
-            console.timeEnd title
 
         else if i < totalPlaylists
             # create next playlist
@@ -153,7 +145,6 @@ pusher.splitPlaylist = (playlistid, limit, nameTemplate, callback, etaCallback) 
             <-! pusher.removePlaylist playlistid
 
             # DONE!
-            console.timeEnd title
             callback(,true) if callback
 
 # add event listener
