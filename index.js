@@ -1004,7 +1004,7 @@
 	    callback(new Error("playlist '" + playlistid + "' not found"));
 	  }
 	};
-	pusher.sizes = [5, 20, 50, 100, 200, 500];
+	pusher.sizes = [20, 50, 100, 200, 500];
 	pusher.changeSplitSize = function(e){
 	  var $btn, size, newSize;
 	  if (e != null) {
