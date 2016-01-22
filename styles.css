@@ -113,6 +113,6 @@
 
 .jtb-working .jtb-import-pl-btn,
 .jtb-working .jtb-export-btn,
-.jtb-working .playlist-list .playlist_icon {
+.jtb-working.jtb-importing .playlist-list .playlist_icon {
     cursor: not-allowed !important;
 }
