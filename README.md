@@ -27,9 +27,17 @@ Importing playlists can take anywhere between 10-30 seconds per 100 songs in the
 **NOTE:** Freshly imported playlists might not show up in the playlist-list, or show up with with a wrong number of songs. Refreshing the page fixes this (sorry).
 
 ### to split playlists
-Open a playlist and click, select your desired playlist-size by clicking the "Split Size" button. **If you don't see the two "split" buttons, try changing to another playlist and back.** Click the "Split Playlist" button to start splitting. **This WILL take a while!** As mentioned with the importing, splitting playlists can take anywhere between 10-30 seconds per 100 songs in the playlist (because Dubtrack doesn't support moving songs in bulk).
+Open a playlist and click, select your desired playlist-size by clicking the "Split Size" button. **If you don't see the two "split" buttons, try changing to another playlist and back.** Click the "Split Playlist" button to start splitting.
 
 ![screenshot of the split buttons](https://i.imgur.com/JwyNYKU.png)
+
+**This WILL take a while!** As mentioned with the importing, splitting playlists can take anywhere between 10-30 seconds per 100 songs in the playlist (because Dubtrack doesn't support moving songs in bulk). **You cannot automatically undo splitting**, make backups first! (i.e. export the playlist using this script, **before** splitting).
+
+The "Split Size" refers to how large the chunks will be, that the playlist gets split into. For example, when splitting a 333 song playlist with split size = 100, the 4 resulting playlists will have 100, 100, 100, and 33 songs respectively.
+
+If you notice there are less songs after splitting then there were before, there are two possible reasons:
+* the song count was incorrect, and the amount of songs did infact not change
+* songs that were removed from Soundcloud or Youtube were automatically removed by Dubtrack
 
 
 Compatibility
