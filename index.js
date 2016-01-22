@@ -85,7 +85,7 @@
 /* 1 */
 /***/ function(module, exports) {
 
-	var fetch, getScript, errorHandler, out$ = typeof exports != 'undefined' && exports || this;
+	var fetch, getScript, errorHandler, ref$, timers, out$ = typeof exports != 'undefined' && exports || this;
 	out$.fetch = fetch = function(name, url, callback){
 	  if (typeof console.time == 'function') {
 	    console.time("[fetch] " + name);
@@ -133,6 +133,23 @@
 	  console.error(message);
 	  alert(message);
 	};
+	if (!window.console) {
+	  window.console = {
+	    log: $.noop
+	  };
+	}
+	(ref$ = window.console).warn || (ref$.warn = window.console.log);
+	(ref$ = window.console).error || (ref$.error = window.console.log);
+	if (!window.console.time || !window.console.timeEnd) {
+	  timers = {};
+	  window.console.time = function(title){
+	    timers[title] = Date.now();
+	  };
+	  window.console.timeEnd = function(title){
+	    console.log(title, (Date.now() - timers[title]) + "ms");
+	    delete timers[title];
+	  };
+	}
 
 /***/ },
 /* 2 */
@@ -362,7 +379,7 @@
 	};
 	ref$.fetchAllPlaylists = function(callback, etaCallback){
 	  pusher.fetchPlaylistsList(function(err, playlistsArr){
-	    var remainingPages, i$, len$, pl, etaTimeout, updateETA;
+	    var remainingPages, i$, len$, pl, etaTimeout, updateETA, title;
 	    if (err) {
 	      return typeof callback == 'function' ? callback(err) : void 8;
 	    }
@@ -380,11 +397,10 @@
 	        etaTimeout = setTimeout(updateETA, 1000);
 	      };
 	    }
+	    title = "fetched playlists' songs";
 	    $.Deferred(function(defFetchPlaylists){
 	      var res, i, fetchNextPlaylist;
-	      if (typeof console.time == 'function') {
-	        console.time("fetched playlists' songs");
-	      }
+	      console.time(title);
 	      res = {};
 	      i = 0;
 	      (fetchNextPlaylist = function(err, playlist){
@@ -409,9 +425,7 @@
 	        }
 	      })();
 	    }).then(function(res){
-	      if (typeof console.timeEnd == 'function') {
-	        console.timeEnd("fetched playlists' songs");
-	      }
+	      console.timeEnd(title);
 	      if (updateETA) {
 	        clearTimeout(etaTimeout);
 	      }

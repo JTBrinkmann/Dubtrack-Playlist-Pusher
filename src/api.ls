@@ -283,8 +283,9 @@ export
                 etaTimeout := setTimeout updateETA, 1_000ms
 
         # asynchroneously load all playlists and add them to zip
+        title = "fetched playlists' songs"
         $.Deferred (defFetchPlaylists) !->
-            console.time? "fetched playlists' songs"
+            console.time title
             res = {}
             i = 0
             do fetchNextPlaylist = (err, playlist) !->
@@ -308,7 +309,7 @@ export
 
         .then (res) !->
             # done fetching playlist data!
-            console.timeEnd? "fetched playlists' songs"
+            console.timeEnd title
 
             # clear eta update timeout
             clearTimeout etaTimeout if updateETA

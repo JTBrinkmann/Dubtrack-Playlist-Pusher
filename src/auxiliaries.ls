@@ -40,3 +40,18 @@ export getScript = (name, exports, url, callback) !->
 export errorHandler = (message) !->
     console.error(message)
     alert message #ToDo
+
+# polyfill `console` object
+if not window.console
+    window.console =
+        log: $.noop
+window.console.warn ||= window.console.log
+window.console.error ||= window.console.log
+
+if not window.console.time or not window.console.timeEnd
+    timers = {}
+    window.console.time = (title) !->
+        timers[title] = Date.now!
+    window.console.timeEnd = (title) !->
+        console.log title, "#{Date.now! - timers[title]}ms"
+        delete timers[title]
