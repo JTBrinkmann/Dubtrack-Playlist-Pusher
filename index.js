@@ -1033,6 +1033,7 @@
 	    title = "[splitPlaylist] done!";
 	    console.time(title);
 	    pusher.setWorking(true);
+	    $btn.text("loading whole playlist…");
 	    pusher.splitPlaylist(playlistid, size, name + " (%d)", function(err){
 	      var ref$, ref1$;
 	      pusher.setWorking(false);
@@ -1074,23 +1075,15 @@
 	      return typeof callback == 'function' ? callback(err) : void 8;
 	    }
 	    pusher.fetchPlaylist(playlistid, function(err2, data){
-	      var songs, remainingSongs, etaTimeout, updateETA, totalPlaylists, plNames, res$, i$, ref$, len$, pl, i, abort, res;
+	      var songs, totalPlaylists, plNames, res$, i$, ref$, len$, pl, i, abort, remainingSongs, etaTimeout, updateETA;
 	      if (err) {
 	        return typeof callback == 'function' ? callback(err) : void 8;
 	      }
 	      songs = data.data.data;
 	      if (!songs.length) {
-	        return callback(new Error("Playlist '" + playlistid + "' appears to be empty"));
+	        return callback(new Error("Playlist appears to be empty"));
 	      } else if (songs.length <= limit) {
 	        return callback(new Error("Hold on there sunny, this playlist is already small enough! (≤ " + limit + " songs)"));
-	      }
-	      if (typeof etaCallback === 'function') {
-	        remainingSongs = songs.length;
-	        updateETA = function(){
-	          clearTimeout(etaTimeout);
-	          etaCallback(void 8, Math.round(remainingSongs * pusher.avgSongAdd / 1000));
-	          etaTimeout = setTimeout(updateETA, 1000);
-	        };
 	      }
 	      totalPlaylists = Math.ceil(songs.length / limit);
 	      res$ = {};
@@ -1111,31 +1104,59 @@
 	          }
 	        }
 	      }
-	      i = 0;
-	      res = {};
-	      function createNextPlaylist(err, playlist){
-	        if (playlist && callback) {
-	          playlist.i = i - 1;
-	          res[playlist.id] = playlist;
-	        }
-	        if (err) {
-	          if (typeof callback == 'function') {
-	            callback(err);
-	          }
-	        } else if (i < totalPlaylists) {
-	          pusher.createPlaylist(name.join(i + 1), songs.slice(i * limit, (++i) * limit), createNextPlaylist, updateETA && function(){
-	            remainingSongs--;
-	            updateETA();
-	          });
-	        } else {
+	      if (typeof etaCallback === 'function') {
+	        remainingSongs = [];
+	        updateETA = function(){
+	          var maxRemaining;
 	          clearTimeout(etaTimeout);
-	          pusher.removePlaylist(playlistid, function(){
-	            if (callback) {
-	              callback(void 8, true);
+	          maxRemaining = Math.max.apply(void 8, remainingSongs);
+	          console.log("[eta]", maxRemaining * pusher.avgSongAdd / 1000, maxRemaining, pusher.avgSongAdd);
+	          etaCallback(void 8, Math.round(maxRemaining * pusher.avgSongAdd / 1000));
+	          etaTimeout = setTimeout(updateETA, 1000);
+	        };
+	      }
+	      $.Deferred(function(def){
+	        var res, remainingPlaylists, i$, to$;
+	        res = {};
+	        remainingPlaylists = totalPlaylists;
+	        for (i$ = 0, to$ = totalPlaylists; i$ < to$; ++i$) {
+	          (fn$.call(this, i$));
+	        }
+	        if (updateETA) {
+	          updateETA();
+	        }
+	        function fn$(i){
+	          var songsSlice;
+	          songsSlice = songs.slice(i * limit, (i + 1) * limit);
+	          if (updateETA) {
+	            remainingSongs[i] = songsSlice.length;
+	          }
+	          pusher.createPlaylist(name.join(i + 1), songsSlice, function(err, playlist){
+	            --remainingPlaylists;
+	            console.log("[split] playlist done", i + 1, remainingPlaylists, err);
+	            if (err) {
+	              if (typeof callback == 'function') {
+	                callback(err);
+	              }
+	            } else {
+	              playlist.i = i + 1;
+	              res[playlist.id] = playlist;
 	            }
+	            if (remainingPlaylists === 0) {
+	              def.resolve(res);
+	            }
+	          }, updateETA && function(){
+	            remainingSongs[i]--;
 	          });
 	        }
-	      } createNextPlaylist();
+	      }).then(function(res){
+	        clearTimeout(etaTimeout);
+	        pusher.removePlaylist(playlistid, function(){
+	          if (callback) {
+	            callback(void 8, res);
+	          }
+	        });
+	      });
 	    });
 	  });
 	};
