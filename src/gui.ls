@@ -105,7 +105,7 @@ $ "<div class='jtb jtb-note'>or click the playlist names<br>to export them indiv
     .appendTo $diag
 
 # safari warning
-if pusher.browserIsSafari
+if not pusher.browserSupportsZip
     pusher.$name = $ "<b class=jtb>"
         .appendTo $diag
     pusher.$data = $ "<textarea class=jtb>"

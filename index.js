@@ -138,29 +138,27 @@
 /* 2 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, PLAYLIST_LIST_RESET_TIMEOUT, browserIsSafari, ref$, ref1$, pusher, ref2$, close, out$ = typeof exports != 'undefined' && exports || this;
+	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, PLAYLIST_LIST_RESET_TIMEOUT, pusher, ref$, ref1$, ref2$, close, out$ = typeof exports != 'undefined' && exports || this;
 	aux = __webpack_require__(1);
 	handleInputFiles = __webpack_require__(3).handleInputFiles;
 	MAX_PAGE_SIZE = 20;
 	FORMATS = [void 8, 'youtube', 'soundcloud'];
 	PLAYLIST_LOADED_RESET_TIMEOUT = 2 * 60000;
 	PLAYLIST_LIST_RESET_TIMEOUT = 2 * 60000;
-	browserIsSafari = ((ref$ = navigator.vendor) != null ? ref$.indexOf('Apple') : void 8) !== -1 && !((ref1$ = navigator.userAgent) != null && ref1$.indexOf('CriOS')) !== -1;
 	pusher = module.exports;
-	ref2$ = out$;
-	ref2$._debug = {};
-	ref2$.aux = aux;
-	ref2$.avgPageFetch = 200;
-	ref2$.avgPageFetchSamples = 2;
-	ref2$.playlistLoadedResetTimeouts = {};
-	ref2$.working = false;
-	ref2$.playlists = {};
-	ref2$.isImporting = false;
-	ref2$.browserIsSafari = browserIsSafari;
-	ref2$.browserSupportsZip = window.Blob && !browserIsSafari;
-	ref2$.browserSupportsDragnDrop = 'draggable' in document.body;
-	ref2$.$loadingIcon = $("<i class='jtb-spin'>C</i>");
-	ref2$.setWorking = function(val){
+	ref$ = out$;
+	ref$._debug = {};
+	ref$.aux = aux;
+	ref$.avgPageFetch = 200;
+	ref$.avgPageFetchSamples = 2;
+	ref$.playlistLoadedResetTimeouts = {};
+	ref$.working = false;
+	ref$.playlists = {};
+	ref$.isImporting = false;
+	ref$.browserSupportsZip = window.Blob && ((ref1$ = navigator.vendor) != null ? ref1$.indexOf('Apple') : void 8) === -1 && ((ref2$ = navigator.userAgent) != null ? ref2$.indexOf('CriOS') : void 8) === -1;
+	ref$.browserSupportsDragnDrop = 'draggable' in document.body;
+	ref$.$loadingIcon = $("<i class='jtb-spin'>C</i>");
+	ref$.setWorking = function(val){
 	  var ref$;
 	  val = !!val;
 	  pusher.working = val;
@@ -168,7 +166,7 @@
 	    ref$.toggleClass('jtb-working', val);
 	  }
 	};
-	ref2$.noConflict = function(){
+	ref$.noConflict = function(){
 	  $('.jtb').remove();
 	  pusher.$browser.removeClass("jtb-dropping jtb-importing jtb-working").off('dragover dragend dragenter dragleave drop');
 	  $('.close-import-playlist').off('click', pusher._closeBtnClick);
@@ -180,7 +178,7 @@
 	  Dubtrack.View.playlistItem.prototype.viewDetails = Dubtrack.View.playlistItem.prototype.viewDetails_;
 	  delete Dubtrack.View.playlistItem.prototype.viewDetails_;
 	};
-	ref2$.fetchPlaylistsList = function(callback){
+	ref$.fetchPlaylistsList = function(callback){
 	  var pls, i, playlistsArr, res$;
 	  if (pusher._playlistsArr) {
 	    if (typeof callback == 'function') {
@@ -222,7 +220,7 @@
 	    });
 	  }
 	};
-	ref2$.getPlaylist = function(playlist, callback){
+	ref$.getPlaylist = function(playlist, callback){
 	  var plID;
 	  if (typeof callback !== 'function') {
 	    return;
@@ -255,7 +253,7 @@
 	    });
 	  }
 	};
-	ref2$.fetchPlaylist = function(playlist, callback, etaCallback){
+	ref$.fetchPlaylist = function(playlist, callback, etaCallback){
 	  var d;
 	  d = Date.now();
 	  pusher.getPlaylist(playlist, function(err, pl){
@@ -345,7 +343,7 @@
 	    });
 	  });
 	};
-	ref2$.etaFetchAllPlaylists = function(callback){
+	ref$.etaFetchAllPlaylists = function(callback){
 	  pusher.fetchPlaylistsList(function(err, playlistsArr){
 	    var eta, i$, len$, pl;
 	    if (err) {
@@ -362,7 +360,7 @@
 	    callback(void 8, eta);
 	  });
 	};
-	ref2$.fetchAllPlaylists = function(callback, etaCallback){
+	ref$.fetchAllPlaylists = function(callback, etaCallback){
 	  pusher.fetchPlaylistsList(function(err, playlistsArr){
 	    var remainingPages, i$, len$, pl, etaTimeout, updateETA;
 	    if (err) {
@@ -423,7 +421,7 @@
 	    });
 	  });
 	};
-	ref2$.downloadPlaylist = function(playlist, callback){
+	ref$.downloadPlaylist = function(playlist, callback){
 	  pusher.fetchPlaylist(playlist, function(err, pl){
 	    var json;
 	    if (err) {
@@ -431,7 +429,7 @@
 	    }
 	    $(".play-song-link, .sidebar .import-playlist").click();
 	    json = JSON.stringify(pl.data);
-	    if (pusher.browserIsSafari) {
+	    if (!pusher.browserSupportsZip) {
 	      pusher.$data.val(json);
 	      pusher.$name.text(pl.name + ".json");
 	    } else {
@@ -442,7 +440,7 @@
 	    }
 	  });
 	};
-	ref2$.downloadZip = function(callback, etaCallback){
+	ref$.downloadZip = function(callback, etaCallback){
 	  pusher.fetchAllPlaylists(function(err, playlists){
 	    var zip, i$, pl, o, filename, date;
 	    if (err) {
@@ -468,7 +466,7 @@
 	    }
 	  }, etaCallback);
 	};
-	ref2$.createPlaylist = function(name, optSongs, callback){
+	ref$.createPlaylist = function(name, optSongs, callback){
 	  var x$;
 	  if (!optSongs || typeof optSongs === 'function') {
 	    callback = optSongs;
@@ -492,7 +490,7 @@
 	    }
 	  });
 	};
-	ref2$.importSongs = function(playlistID, songsArray, callback, _internal_pl){
+	ref$.importSongs = function(playlistID, songsArray, callback, _internal_pl){
 	  var i, title;
 	  i = 0;
 	  title = "imported " + songsArray.length + " songs into " + playlistID;
@@ -524,7 +522,7 @@
 	    }
 	  } importSong();
 	};
-	ref2$.handleInputFiles = handleInputFiles;
+	ref$.handleInputFiles = handleInputFiles;
 	out$.close = close = pusher.noConflict;
 
 /***/ },
@@ -862,7 +860,7 @@
 	    });
 	  }).toggle(pusher.browserSupportsZip);
 	  $("<div class='jtb jtb-note'>or click the playlist names<br>to export them individually</div>").appendTo($diag);
-	  if (pusher.browserIsSafari) {
+	  if (!pusher.browserSupportsZip) {
 	    pusher.$name = $("<b class=jtb>").appendTo($diag);
 	    pusher.$data = $("<textarea class=jtb>").css({
 	      maxHeight: '5em'

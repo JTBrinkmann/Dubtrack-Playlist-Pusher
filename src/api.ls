@@ -14,9 +14,6 @@ const PLAYLIST_LOADED_RESET_TIMEOUT = 2min * 60_000min_to_ms
 const PLAYLIST_LIST_RESET_TIMEOUT   = 2min * 60_000min_to_ms
 
 
-browserIsSafari = navigator.vendor?.indexOf(\Apple) != -1
-    and not navigator.userAgent?.indexOf(\CriOS) != -1
-
 #== API ==
 pusher = module.exports
 export
@@ -33,8 +30,9 @@ export
     isImporting: false
 
     # browser data
-    browserIsSafari: browserIsSafari
-    browserSupportsZip: window.Blob and not browserIsSafari #ToDo improve
+    browserSupportsZip: window.Blob #ToDo improve
+        and navigator.vendor?.indexOf(\Apple) == -1
+        and navigator.userAgent?.indexOf(\CriOS) == -1
     browserSupportsDragnDrop: \draggable of document.body
 
     # the C in this font looks like a cheap circle-arrow icon ^_^
@@ -326,7 +324,7 @@ export
         $ ".play-song-link, .sidebar .import-playlist" .click!
 
         json = JSON.stringify(pl.data)
-        if pusher.browserIsSafari # show in text area
+        if not pusher.browserSupportsZip # show in text area
             pusher.$data.val json
             pusher.$name.text "#{pl.name}.json"
         else # download as file (worst case: open it in a new tab/window)
