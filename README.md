@@ -1,6 +1,6 @@
 Dubtrack Playlist Pusher
 ========================
-Adds simple and intuitive playlist **importing** & **exporting** capabilities to Dubtrack; useful for transferring playlists to another account.
+Adds simple and intuitive playlist **importing**, **exporting** and splitting capabilities to Dubtrack; useful for transferring playlists to another account.
 
 ![Why can't we just take our Dubtrack playlists, and push them somewhere else?](http://i.imgur.com/oxFwWnN.jpg)
 
@@ -15,11 +15,19 @@ javascript:$.getScript("https://rawgit.com/JTBrinkmann/Dubtrack-Playlist-Pusher/
 Give it any name (e.g. "Dubtrack Playlist Pusher"). Then go to Dubtrack (make sure you're logged in) and click the bookmarklet.
 [more detailed instructions](http://www.howtogeek.com/189358/beginner-geek-how-to-use-bookmarklets-on-any-device/)
 
-Then go to Dubtrack.fm, be logged in and click the bookmark. Go to the playlist manager (it should auto-open) and click the "Import/Export playlists" button in the bottom-left corner.
+Then go to Dubtrack.fm, be logged in and click the bookmark. Go to the playlist manager (it should auto-open)
+
+### to import or export
+Click the "Import/Export playlists" button in the bottom-left corner. Then follow the instructions that show up (it's dead simple, really)
 
 ![screenshot of the import/export button](https://i.imgur.com/TKHHJoO.png)
 
 **NOTE:** Freshly imported playlists might not show up in the playlist-list, or show up with with a wrong number of songs. Refreshing the page fixes this (sorry).
+
+### to split playlists
+Open a playlist and click, select your desired playlist-size by clicking the "Split Size" button. **If you don't see the two "split" buttons, try changing to another playlist and back.** Click the "Split Playlist" button to start splitting. **This WILL take a while!** Splitting playlists can anywhere between 10-30 seconds per 100 songs in the playlist (because Dubtrack doesn't support moving songs in bulk).
+
+![screenshot of the split buttons](https://i.imgur.com/JwyNYKU.png)
 
 
 Compatibility
