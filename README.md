@@ -18,14 +18,16 @@ Give it any name (e.g. "Dubtrack Playlist Pusher"). Then go to Dubtrack (make su
 Then go to Dubtrack.fm, be logged in and click the bookmark. Go to the playlist manager (it should auto-open)
 
 ### to import or export
-Click the "Import/Export playlists" button in the bottom-left corner. Then follow the instructions that show up (it's dead simple, really)
+Click the "Import/Export playlists" button in the bottom-left corner. Then follow the instructions that show up (it's dead simple, really).
 
 ![screenshot of the import/export button](https://i.imgur.com/TKHHJoO.png)
+
+Importing playlists can take anywhere between 10-30 seconds per 100 songs in the playlist (because Dubtrack doesn't support moving songs in bulk).
 
 **NOTE:** Freshly imported playlists might not show up in the playlist-list, or show up with with a wrong number of songs. Refreshing the page fixes this (sorry).
 
 ### to split playlists
-Open a playlist and click, select your desired playlist-size by clicking the "Split Size" button. **If you don't see the two "split" buttons, try changing to another playlist and back.** Click the "Split Playlist" button to start splitting. **This WILL take a while!** Splitting playlists can anywhere between 10-30 seconds per 100 songs in the playlist (because Dubtrack doesn't support moving songs in bulk).
+Open a playlist and click, select your desired playlist-size by clicking the "Split Size" button. **If you don't see the two "split" buttons, try changing to another playlist and back.** Click the "Split Playlist" button to start splitting. **This WILL take a while!** As mentioned with the importing, splitting playlists can anywhere between 10-30 seconds per 100 songs in the playlist (because Dubtrack doesn't support moving songs in bulk).
 
 ![screenshot of the split buttons](https://i.imgur.com/JwyNYKU.png)
 
