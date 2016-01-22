@@ -1034,8 +1034,17 @@
 	  } else {
 	    pusher.setWorking(true);
 	    pusher.splitPlaylist(playlistid, size, name + " (%d)", function(err){
+	      var ref$, ref1$;
 	      pusher.setWorking(false);
 	      $btn.text("Split Size: " + size);
+	      if ((ref$ = Dubtrack.app.browserView) != null) {
+	        if ((ref1$ = ref$.playlistContainer) != null) {
+	          ref1$.empty();
+	        }
+	      }
+	      Dubtrack.app.navigate("/browser/queue/", {
+	        trigger: false
+	      });
 	      if (err) {
 	        aux.errorHandler(err);
 	      } else {

@@ -36,8 +36,17 @@ pusher.showSplitPlaylistGUI = (e) !->
         pusher.setWorking true
         pusher.splitPlaylist playlistid, size, "#name (%d)",
             (err) !->
+                # stop blocking
                 pusher.setWorking false
+
+                # reset split size button
                 $btn.text "Split Size: #size"
+
+                # close current playlist
+                Dubtrack.app.browserView?.playlistContainer?.empty!
+                Dubtrack.app.navigate "/browser/queue/", {-trigger}
+
+                # show error / success message
                 if err
                     aux.errorHandler err
                 else
