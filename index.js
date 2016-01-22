@@ -1039,18 +1039,18 @@
 	      var ref$, ref1$;
 	      pusher.setWorking(false);
 	      $btn.text("Split Size: " + size);
-	      if ((ref$ = Dubtrack.app.browserView) != null) {
-	        if ((ref1$ = ref$.playlistContainer) != null) {
-	          ref1$.empty();
-	        }
-	      }
-	      Dubtrack.app.navigate("/browser/queue/", {
-	        trigger: false
-	      });
 	      console.timeEnd(title);
 	      if (err) {
 	        aux.errorHandler(err);
 	      } else {
+	        if ((ref$ = Dubtrack.app.browserView) != null) {
+	          if ((ref1$ = ref$.playlistContainer) != null) {
+	            ref1$.empty();
+	          }
+	        }
+	        Dubtrack.app.navigate("/browser/queue/", {
+	          trigger: false
+	        });
 	        alert("done splitting \"" + name + "\"\n\nif the new playlists don't show up in your playlist-list, you might need to refresh.");
 	      }
 	    }, function(err, eta){
