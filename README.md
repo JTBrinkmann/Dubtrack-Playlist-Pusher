@@ -39,6 +39,9 @@ If you notice there are less songs after splitting then there were before, there
 * the song count was incorrect, and the amount of songs did infact not change
 * songs that were removed from Soundcloud or Youtube were automatically removed by Dubtrack
 
+### Transferring Playlists
+Seriously? Just export them from one account, copy the files over (if necessary) and import them into the other account.
+
 
 Compatibility
 -------------
@@ -49,12 +52,9 @@ Tested to work on **Google Chrome**, **Firefox** and **Internet Explorer 10** an
 Apparently it is **not** working on **Internet Explorer 9** (and below) and **Safari**. This is because these browsers don't support downloading files that were generated on-the-fly (which is what this exporter does). If it doesn't work for you, you can simply try again on another browser (possibly even on another device). The exporter has not yet been tested with mobile browsers.
 
 
-Importing
----------
+Notes on Importing
+------------------
 You can use this tool to import playlists that were exported with this tool, and playlists exported from plug.dj. It also works across accounts!
 In addition, playlists exported with this tool are completly compatible with other Dubtrack playlist importers like [dubtrack-playlist.appspot.com](https://dubtrack-playlist.appspot.com/)
 
 
-Transferring Playlists
-----------------------
-Seriously? Just export them from one account, copy the files over (if necessary) and import them into the other account.
