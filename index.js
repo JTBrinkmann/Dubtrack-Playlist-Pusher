@@ -517,8 +517,8 @@
 	      } else {
 	        url = Dubtrack.config.apiUrl + Dubtrack.config.urls.playlistSong.split(':id').join(playlistID);
 	        Dubtrack.helpers.sendRequest(url, {
-	          fkid: song.cid,
-	          type: FORMATS[song.format]
+	          fkid: song.cid || song.fkid,
+	          type: FORMATS[song.format] || song.type
 	        }, 'post', importSong);
 	      }
 	    } else {

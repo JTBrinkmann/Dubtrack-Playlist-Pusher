@@ -401,8 +401,8 @@ export
                         Dubtrack.config.urls.playlistSong.split \:id .join playlistID
                     Dubtrack.helpers.sendRequest do
                         url
-                        fkid: song.cid
-                        type: FORMATS[song.format]
+                        fkid: song.cid || song.fkid
+                        type: FORMATS[song.format] || song.type
                         \post
                         importSong
             else
