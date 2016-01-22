@@ -89,7 +89,9 @@ pusher.splitPlaylist = (playlistid, limit, nameTemplate, callback, etaCallback) 
 
     songs = data.data.data
     if not songs.length # note: we're not using totalItems because it's unreliable
-        callback new Error "Playlist '#playlistid' is empty"
+        callback new Error "Playlist '#playlistid' appears to be empty"
+    else if songs.length <= limit
+        callback new Error "Hold on there sunny, this playlist is already small enough! (≤ #limit songs)"
 
     # prepare eta
     if typeof etaCallback == \function

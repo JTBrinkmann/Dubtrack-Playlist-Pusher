@@ -1089,7 +1089,9 @@
 	      }
 	      songs = data.data.data;
 	      if (!songs.length) {
-	        callback(new Error("Playlist '" + playlistid + "' is empty"));
+	        callback(new Error("Playlist '" + playlistid + "' appears to be empty"));
+	      } else if (songs.length <= limit) {
+	        callback(new Error("Hold on there sunny, this playlist is already small enough! (≤ " + limit + " songs)"));
 	      }
 	      if (typeof etaCallback === 'function') {
 	        remainingSongs = songs.length;
