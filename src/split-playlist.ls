@@ -50,7 +50,11 @@ pusher.showSplitPlaylistGUI = (e) !->
                 if err
                     aux.errorHandler err
                 else
-                    alert "done splitting \"#name\""
+                    alert """
+                        done splitting \"#name\"
+
+                        if the new playlists don't show up in your playlist-list, you might need to refresh.
+                    """
             (err, eta) !->
                 if eta >= 1
                     $btn.text "Splitting… #{eta}s"

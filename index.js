@@ -1048,7 +1048,7 @@
 	      if (err) {
 	        aux.errorHandler(err);
 	      } else {
-	        alert("done splitting \"" + name + "\"");
+	        alert("done splitting \"" + name + "\"\n\nif the new playlists don't show up in your playlist-list, you might need to refresh.");
 	      }
 	    }, function(err, eta){
 	      if (eta >= 1) {
