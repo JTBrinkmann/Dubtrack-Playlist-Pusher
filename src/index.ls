@@ -46,3 +46,6 @@ if window.pusher.browserSupportsZip
 # load GUI
 Dubtrack.app.loadUserPlaylists !->
     require \gui
+
+    # apply split-playlist button patch
+    require \split-playlist

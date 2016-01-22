@@ -22,6 +22,8 @@ export
     aux: aux
     avgPageFetch: 200ms
     avgPageFetchSamples: 2
+    avgSongAdd: 200ms
+    avgSongAddSamples: 2
     playlistLoadedResetTimeouts: {}
     working: false
 
@@ -69,6 +71,14 @@ export
         delete Dubtrack.View.playlistItem::viewDetails_
 
         # keep the patched $(".playlist_icon") click handler
+
+        # split-playlist
+        # remove event listener
+        delete Dubtrack.View.BrowserInfo::events["click .jtb-split-btn"]
+        delete Dubtrack.View.BrowserInfo::events["click .jtb-split-size-btn"]
+
+        # add button
+        Dubtrack.els.templates.playlist.playlistInfo = Dubtrack.els.templates.playlist.playlistInfo_
 
 
 
@@ -365,7 +375,7 @@ export
 
 
     #== IMPORTER ==
-    createPlaylist: (name, optSongs, callback) !->
+    createPlaylist: (name, optSongs, callback, etaCallback) !->
         if not optSongs or typeof optSongs == \function
             callback = optSongs
             optSongs = null
@@ -378,17 +388,30 @@ export
             ..parse = Dubtrack.helpers.parse
             ..save {}, success: (pl) !->
                 # add playlist locally (might not always trigger a redraw)
-                Dubtrack.user.playlist.add pl
+                setTimeout (!-> Dubtrack.user.playlist.add pl), 2_000ms
                 if optSongs
-                    pusher.importSongs pl.id, optSongs, callback, ..
+                    pusher.importSongs pl.id, optSongs, callback, etaCallback, ..
                 else
                     callback?(,pl)
-    importSongs: (playlistID, songsArray, callback, _internal_pl) !->
+    importSongs: (playlistID, songsArray, callback, etaCallback, _internal_pl) !->
+        etaCallback = null if typeof etaCallback != \function
         i = 0
         title = "imported #{songsArray.length} songs into #playlistID"
+
         console.time title
+        d = Date.now!
+        url = Dubtrack.config.apiUrl +
+            Dubtrack.config.urls.playlistSong.split \:id .join playlistID
         do !function importSong
+            if i # update avg. song add speed
+                pusher.avgSongAdd *= pusher.avgSongAddSamples
+                pusher.avgSongAdd += Date.now! - d
+                pusher.avgSongAdd /= ++pusher.avgSongAddSamples
+                d := Date.now!
             song = songsArray[i++]
+
+            etaCallback(i) if etaCallback
+
             if song
                 if typeof song.cid != \string or song.format not in [1, 2]
                     # skip invalid song
@@ -397,8 +420,6 @@ export
                     importSong!
                 else
                     # send import request
-                    url = Dubtrack.config.apiUrl +
-                        Dubtrack.config.urls.playlistSong.split \:id .join playlistID
                     Dubtrack.helpers.sendRequest do
                         url
                         fkid: song.cid || song.fkid

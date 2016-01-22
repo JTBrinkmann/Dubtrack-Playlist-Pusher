@@ -79,6 +79,7 @@
 	}
 	Dubtrack.app.loadUserPlaylists(function(){
 	  __webpack_require__(5);
+	  __webpack_require__(6);
 	});
 
 /***/ },
@@ -168,6 +169,8 @@
 	ref$.aux = aux;
 	ref$.avgPageFetch = 200;
 	ref$.avgPageFetchSamples = 2;
+	ref$.avgSongAdd = 200;
+	ref$.avgSongAddSamples = 2;
 	ref$.playlistLoadedResetTimeouts = {};
 	ref$.working = false;
 	ref$.playlists = {};
@@ -194,6 +197,9 @@
 	  delete Dubtrack.View.ImportPlaylistBrowser.prototype.closeView_;
 	  Dubtrack.View.playlistItem.prototype.viewDetails = Dubtrack.View.playlistItem.prototype.viewDetails_;
 	  delete Dubtrack.View.playlistItem.prototype.viewDetails_;
+	  delete Dubtrack.View.BrowserInfo.prototype.events["click .jtb-split-btn"];
+	  delete Dubtrack.View.BrowserInfo.prototype.events["click .jtb-split-size-btn"];
+	  Dubtrack.els.templates.playlist.playlistInfo = Dubtrack.els.templates.playlist.playlistInfo_;
 	};
 	ref$.fetchPlaylistsList = function(callback){
 	  var pls, i, playlistsArr, res$;
@@ -477,7 +483,7 @@
 	    }
 	  }, etaCallback);
 	};
-	ref$.createPlaylist = function(name, optSongs, callback){
+	ref$.createPlaylist = function(name, optSongs, callback, etaCallback){
 	  var x$;
 	  if (!optSongs || typeof optSongs === 'function') {
 	    callback = optSongs;
@@ -490,9 +496,11 @@
 	  x$.parse = Dubtrack.helpers.parse;
 	  x$.save({}, {
 	    success: function(pl){
-	      Dubtrack.user.playlist.add(pl);
+	      setTimeout(function(){
+	        Dubtrack.user.playlist.add(pl);
+	      }, 2000);
 	      if (optSongs) {
-	        pusher.importSongs(pl.id, optSongs, callback, x$);
+	        pusher.importSongs(pl.id, optSongs, callback, etaCallback, x$);
 	      } else {
 	        if (typeof callback == 'function') {
 	          callback(void 8, pl);
@@ -501,21 +509,34 @@
 	    }
 	  });
 	};
-	ref$.importSongs = function(playlistID, songsArray, callback, _internal_pl){
-	  var i, title;
+	ref$.importSongs = function(playlistID, songsArray, callback, etaCallback, _internal_pl){
+	  var i, title, d, url;
+	  if (typeof etaCallback !== 'function') {
+	    etaCallback = null;
+	  }
 	  i = 0;
 	  title = "imported " + songsArray.length + " songs into " + playlistID;
 	  console.time(title);
+	  d = Date.now();
+	  url = Dubtrack.config.apiUrl + Dubtrack.config.urls.playlistSong.split(':id').join(playlistID);
 	  function importSong(){
-	    var song, ref$, url;
+	    var song, ref$;
+	    if (i) {
+	      pusher.avgSongAdd *= pusher.avgSongAddSamples;
+	      pusher.avgSongAdd += Date.now() - d;
+	      pusher.avgSongAdd /= ++pusher.avgSongAddSamples;
+	      d = Date.now();
+	    }
 	    song = songsArray[i++];
+	    if (etaCallback) {
+	      etaCallback(i);
+	    }
 	    if (song) {
 	      if (typeof song.cid !== 'string' || ((ref$ = song.format) !== 1 && ref$ !== 2)) {
 	        console.warn("skipping song with unknown format", song);
 	        i++;
 	        importSong();
 	      } else {
-	        url = Dubtrack.config.apiUrl + Dubtrack.config.urls.playlistSong.split(':id').join(playlistID);
 	        Dubtrack.helpers.sendRequest(url, {
 	          fkid: song.cid || song.fkid,
 	          type: FORMATS[song.format] || song.type
@@ -861,12 +882,11 @@
 	      if (err) {
 	        console.error(err);
 	      } else {
-	        if (eta < 1) {
-	          eta = "<1";
+	        if (eta >= 1) {
+	          this$.textContent = "Downloading… " + eta + "s";
 	        } else {
-	          eta = "ca. " + eta;
+	          this$.textContent = "Downloading…";
 	        }
-	        this$.textContent = "Downloading… " + eta + "s";
 	      }
 	    });
 	  }).toggle(pusher.browserSupportsZip);
@@ -964,6 +984,162 @@
 	    pusher.handleInputFiles(inputfiles);
 	  });
 	});
+
+/***/ },
+/* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var aux, ref$;
+	aux = __webpack_require__(1);
+	pusher.removePlaylist = function(playlistid, callback){
+	  var i$, ref$, len$, pl;
+	  for (i$ = 0, len$ = (ref$ = Dubtrack.app.browserView.model.models).length; i$ < len$; ++i$) {
+	    pl = ref$[i$];
+	    if (pl.id === playlistid) {
+	      pl.destroy();
+	      return typeof callback == 'function' ? callback(void 8, pl) : void 8;
+	    }
+	  }
+	  if (typeof callback == 'function') {
+	    callback(new Error("playlist '" + playlistid + "' not found"));
+	  }
+	};
+	pusher.sizes = [5, 20, 50, 100, 200, 500];
+	pusher.changeSplitSize = function(e){
+	  var $btn, size, newSize;
+	  if (e != null) {
+	    e.preventDefault();
+	  }
+	  $btn = $('.jtb-split-size-btn');
+	  size = $btn.data('split-size');
+	  newSize = pusher.sizes[(pusher.sizes.indexOf(size) + 1) % pusher.sizes.length];
+	  $btn.data('split-size', newSize);
+	  $btn.text("Split Size: " + newSize);
+	};
+	pusher.showSplitPlaylistGUI = function(e){
+	  var $btn, size, playlistid;
+	  if (e != null) {
+	    e.preventDefault();
+	  }
+	  $btn = $('.jtb-split-size-btn');
+	  size = $btn.data('split-size');
+	  console.log("[split gui]", this != null ? this.model : void 8, size);
+	  if (!(this != null && this.model)) {
+	    return;
+	  }
+	  playlistid = this.model.id;
+	  pusher.splitPlaylist(playlistid, size, this.model.get('name') + " (%d)", function(err){
+	    $btn.text("Split Size: " + size);
+	    if (err) {
+	      aux.errorHandler(err);
+	    }
+	  }, function(err, eta){
+	    console.log("Splitting… " + eta + "s", new Date());
+	    if (eta >= 1) {
+	      eta = "ca. " + eta;
+	    } else {
+	      eta = "<1";
+	    }
+	    $btn.text("Splitting… " + eta + "s");
+	  });
+	};
+	pusher.splitPlaylist = function(playlistid, limit, nameTemplate, callback, etaCallback){
+	  var title, name;
+	  if (!isFinite(limit) || limit < 1) {
+	    return typeof callback == 'function' ? callback(new TypeError("limit too small")) : void 8;
+	  }
+	  if (pusher.splitting) {
+	    return typeof callback == 'function' ? callback(new TypeError("already splitting")) : void 8;
+	  }
+	  pusher.splitting = true;
+	  if (typeof callback !== 'function') {
+	    callback = null;
+	  }
+	  title = "[splitPlaylist] done!";
+	  console.time(title);
+	  name = nameTemplate.split("%d");
+	  pusher.fetchPlaylistsList(function(err, playlistsArr){
+	    if (err) {
+	      if (typeof callback == 'function') {
+	        callback(err);
+	      }
+	      console.timeEnd(title);
+	      return;
+	    }
+	    pusher.fetchPlaylist(playlistid, function(err2, data){
+	      var songs, remainingSongs, etaTimeout, updateETA, totalPlaylists, plNames, res$, i$, ref$, len$, pl, i, abort, res;
+	      if (err) {
+	        if (typeof callback == 'function') {
+	          callback(err);
+	        }
+	        console.timeEnd(title);
+	        return;
+	      }
+	      songs = data.data.data;
+	      if (!songs.length) {
+	        callback(new Error("Playlist '" + playlistid + "' is empty"));
+	      }
+	      if (typeof etaCallback === 'function') {
+	        remainingSongs = songs.length;
+	        updateETA = function(){
+	          clearTimeout(etaTimeout);
+	          etaCallback(void 8, Math.round(remainingSongs * pusher.avgSongAdd / 1000));
+	          etaTimeout = setTimeout(updateETA, 1000);
+	        };
+	      }
+	      totalPlaylists = Math.ceil(songs.length / limit);
+	      res$ = {};
+	      for (i$ = 0, len$ = (ref$ = playlistsArr).length; i$ < len$; ++i$) {
+	        pl = ref$[i$];
+	        res$[pl.name] = true;
+	      }
+	      plNames = res$;
+	      for (i$ = 0; i$ < totalPlaylists; ++i$) {
+	        i = i$;
+	        if (name.join(i) in plNames) {
+	          abort = !confirm("You are about to create playlists with names that are already used (e.g. \"" + name.join(i) + "\")!\n\nAre you sure you want to continue?");
+	          if (abort) {
+	            console.timeEnd(title);
+	            return;
+	          } else {
+	            break;
+	          }
+	        }
+	      }
+	      i = 0;
+	      res = {};
+	      function createNextPlaylist(err, playlist){
+	        if (playlist && callback) {
+	          playlist.i = i - 1;
+	          res[playlist.id] = playlist;
+	        }
+	        if (err) {
+	          if (typeof callback == 'function') {
+	            callback(err);
+	          }
+	          console.timeEnd(title);
+	        } else if (i < totalPlaylists) {
+	          pusher.createPlaylist(name.join(i + 1), songs.slice(i * limit, (++i) * limit), createNextPlaylist, updateETA && function(){
+	            remainingSongs--;
+	            updateETA();
+	          });
+	        } else {
+	          clearTimeout(etaTimeout);
+	          pusher.removePlaylist(playlistid, function(){
+	            console.timeEnd(title);
+	            if (callback) {
+	              callback(void 8, true);
+	            }
+	          });
+	        }
+	      } createNextPlaylist();
+	    });
+	  });
+	};
+	Dubtrack.View.BrowserInfo.prototype.events["click .jtb-split-btn"] = pusher.showSplitPlaylistGUI;
+	Dubtrack.View.BrowserInfo.prototype.events["click .jtb-split-size-btn"] = pusher.changeSplitSize;
+	(ref$ = Dubtrack.els.templates.playlist).playlistInfo_ || (ref$.playlistInfo_ = Dubtrack.els.templates.playlist.playlistInfo);
+	(ref$ = Dubtrack.els.templates.playlist).playlistInfo = ref$.playlistInfo.replace(/(queue-playlist">.*?<\/a>).*<\/div>$/, "$1<a href=# class='text-button jtb-split-size-btn' data-split-size=50>Split Size: 50</a><a href=# class='text-button jtb-split-btn'>Split Playlist</a></div>");
 
 /***/ }
 /******/ ]);
