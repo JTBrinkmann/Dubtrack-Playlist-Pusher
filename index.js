@@ -496,9 +496,7 @@
 	  x$.parse = Dubtrack.helpers.parse;
 	  x$.save({}, {
 	    success: function(pl){
-	      setTimeout(function(){
-	        Dubtrack.user.playlist.add(pl);
-	      }, 5000);
+	      Dubtrack.app.browserView.model.add(x$);
 	      if (optSongs) {
 	        pusher.importSongs(pl.id, optSongs, callback, etaCallback, x$);
 	      } else {
