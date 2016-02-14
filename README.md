@@ -51,6 +51,8 @@ Tested to work on **Google Chrome**, **Firefox** and **Internet Explorer 10** an
 
 Apparently it is **not** working on **Internet Explorer 9** (and below) and **Safari**. This is because these browsers don't support downloading files that were generated on-the-fly (which is what this exporter does). If it doesn't work for you, you can simply try again on another browser (possibly even on another device). The exporter has not yet been tested with mobile browsers.
 
+Before 2016-02-14, this exporter didn't correctly export songs' durations (they were in ms instead of seconds) and was missing the song titles completly. Playlists created after the fix have `"dubtrackPlaylistPusherFormat":2` at the root of their JSON files.
+
 
 Notes on Importing
 ------------------
