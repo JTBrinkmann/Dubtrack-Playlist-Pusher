@@ -44,6 +44,13 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	module.exports = __webpack_require__(1);
+
+
+/***/ },
+/* 1 */
+/***/ function(module, exports, __webpack_require__) {
+
 	/*
 	 * Dubtrack Playlist Exporter
 	 * by Brinkie Pie (aka. jtbrinkmann)
@@ -68,22 +75,22 @@
 	    }
 	  }
 	} catch (e$) {}
-	aux = __webpack_require__(1);
+	aux = __webpack_require__(2);
 	aux.getScript('FileSaver', 'saveAs', "https://cdn.rawgit.com/koffsyrup/FileSaver.js/master/FileSaver.js");
 	$('#jtb-css').remove();
 	$css = $("<link rel=stylesheet id=jtb-css href='https://cdn.rawgit.com/JTBrinkmann/dubtrack-playlist-pusher/master/styles.css'>").appendTo('head');
 	$('.play-song-link').click();
-	window.pusher = __webpack_require__(2);
+	window.pusher = __webpack_require__(3);
 	if (window.pusher.browserSupportsZip) {
 	  aux.getScript('JSZip', 'JSZip', "https://cdnjs.cloudflare.com/ajax/libs/jszip/2.5.0/jszip.min.js");
 	}
 	Dubtrack.app.loadUserPlaylists(function(){
-	  __webpack_require__(5);
 	  __webpack_require__(6);
+	  __webpack_require__(7);
 	});
 
 /***/ },
-/* 1 */
+/* 2 */
 /***/ function(module, exports) {
 
 	var fetch, getScript, errorHandler, ref$, timers, out$ = typeof exports != 'undefined' && exports || this;
@@ -153,12 +160,12 @@
 	}
 
 /***/ },
-/* 2 */
+/* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var aux, handleInputFiles, MAX_PAGE_SIZE, FORMATS, PLAYLIST_LOADED_RESET_TIMEOUT, PLAYLIST_LIST_RESET_TIMEOUT, pusher, ref$, ref1$, ref2$, close, out$ = typeof exports != 'undefined' && exports || this;
-	aux = __webpack_require__(1);
-	handleInputFiles = __webpack_require__(3).handleInputFiles;
+	aux = __webpack_require__(2);
+	handleInputFiles = __webpack_require__(4).handleInputFiles;
 	MAX_PAGE_SIZE = 20;
 	FORMATS = [void 8, 'youtube', 'soundcloud'];
 	PLAYLIST_LOADED_RESET_TIMEOUT = 2 * 60000;
@@ -315,8 +322,8 @@
 	                  cid: _song.fkid,
 	                  format: FORMATS.indexOf(_song.type),
 	                  artist: '',
-	                  name: _song.title,
-	                  duration: _song.songLength,
+	                  title: _song.name,
+	                  duration: ~~(_song.songLength / 1000),
 	                  image: _song.images.thumbnail
 	                };
 	              }
@@ -351,6 +358,7 @@
 	          data: {
 	            time: Date.now() - d,
 	            status: 'ok',
+	            dubtrackPlaylistPusherFormat: 2,
 	            data: songs,
 	            meta: {
 	              id: pl.id,
@@ -556,11 +564,11 @@
 	out$.close = close = pusher.noConflict;
 
 /***/ },
-/* 3 */
+/* 4 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var $filelist, handleInputFiles, out$ = typeof exports != 'undefined' && exports || this;
-	$filelist = __webpack_require__(4).$el;
+	$filelist = __webpack_require__(5).$el;
 	out$.handleInputFiles = handleInputFiles = function(inputfiles){
 	  var $playlistSelect, i$, ref$, len$, pl, autoScrolling, scrollTo;
 	  pusher._debug.inputfiles = inputfiles;
@@ -753,7 +761,7 @@
 	};
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports) {
 
 	var $el, out$ = typeof exports != 'undefined' && exports || this;
@@ -823,12 +831,12 @@
 	});
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var pusher, $filelist;
-	pusher = __webpack_require__(2);
-	$filelist = __webpack_require__(4).$el;
+	pusher = __webpack_require__(3);
+	$filelist = __webpack_require__(5).$el;
 	requestAnimationFrame(function(){
 	  var $browser, $diag, x$, $fileInput, isFileSelecting, ref$, dragTarget;
 	  pusher.$browser = $browser = $('#browser');
@@ -984,11 +992,11 @@
 	});
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var aux, ref$;
-	aux = __webpack_require__(1);
+	aux = __webpack_require__(2);
 	pusher.removePlaylist = function(playlistid, callback){
 	  var i$, ref$, len$, pl;
 	  for (i$ = 0, len$ = (ref$ = Dubtrack.app.browserView.model.models).length; i$ < len$; ++i$) {

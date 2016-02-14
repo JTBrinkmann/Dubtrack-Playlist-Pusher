@@ -210,8 +210,8 @@ export
                                 cid:      _song.fkid
                                 format:   FORMATS.indexOf(_song.type)
                                 artist:   ''
-                                name:     _song.title
-                                duration: _song.songLength
+                                title:    _song.name
+                                duration: ~~(_song.songLength / 1000)
                                 image:    _song.images.thumbnail
                         offset += page.length
                     catch err
@@ -248,6 +248,7 @@ export
                     # rather unnecessary meta data… but why not
                     time: Date.now! - d
                     status: \ok
+                    dubtrackPlaylistPusherFormat: 2
 
                     # songs
                     data: songs
