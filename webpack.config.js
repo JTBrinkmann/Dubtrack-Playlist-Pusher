@@ -1,20 +1,12 @@
-path = require('path')
-root = path.resolve(path.join(__dirname, 'src'))
+var path = require("path");
 module.exports = {
-     entry: [
-        path.join(__dirname, 'src/index.ls')
-     ]
-    ,output: {
-         path: __dirname
-        ,filename: 'index.js'
-    }
-	,module: {
-		loaders: [
-			{ test: /\.ls$/, loader: 'livescript?map=none' }
-		]
-	}
-	,resolve: {
-		root: root
-		,extensions: ['', '.ls', '.js']
-	}
+  mode: 'none',
+  entry: [path.join(__dirname, "output/load.js")],
+  output: {
+    path: __dirname,
+    filename: "index.js"
+  },
+  resolve: {
+    modules: [path.resolve(path.join(__dirname, "output"))]
+  }
 };
