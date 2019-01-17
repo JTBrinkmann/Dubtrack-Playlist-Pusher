@@ -22,9 +22,13 @@ require! {
     auxiliaries: 'aux'
 }
 
-
-# let FileSaver load in the background
-aux.getScript \FileSaver, \saveAs, "https://cdn.rawgit.com/koffsyrup/FileSaver.js/master/FileSaver.js"
+try
+  isFileSaverSupported = !!new Blob
+  
+  
+if !isFileSaverSupported
+    # let FileSaver load in the background
+    aux.getScript \FileSaver, \saveAs, "https://cdn.rawgit.com/eligrey/FileSaver.js/master/dist/FileSaver.min.js"
 
 
 # add CSS
