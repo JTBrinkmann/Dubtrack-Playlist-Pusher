@@ -5,10 +5,12 @@
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {
-    "livescript-loader": "^0.1.5"
+    "livescript": "^1.6.0",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "lsc -co output src && webpack && rm -rf output"
   },
   "repository": {
     "type": "git",
